@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -27,15 +28,29 @@ Route::middleware(['auth', 'verified'])
             return view('admin.dashboard');
         })->name('dashboard');
 
-        //register all other protected routes
-        //CRUD POSTS
-    
+        //Client Routes
+        Route::resource('clients', ClientController::class)->names([
+            'index' => 'client.index',
+            'create' => 'client.create',
+            'store' => 'client.store',
+            'show' => 'client.show',
+            'edit' => 'client.edit',
+            'update' => 'client.update',
+            'destroy' => 'client.destroy'
+        ]);
+
     });
 
 Route::middleware('auth')->group(function () {
+
+    //Profile routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    //Client routes
+    /* Route::resource('clients', ClientController::class); */
+
 });
 
 require __DIR__ . '/auth.php';
