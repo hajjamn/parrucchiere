@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\ClientStoreRequest;
+use App\Http\Requests\ClientUpdateRequest;
 use App\Models\Client;
 use Illuminate\Http\Request;
 
@@ -28,7 +29,7 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreClientRequest $request)
+    public function store(ClientStoreRequest $request)
     {
         Client::create($request->validated());
 
@@ -54,7 +55,7 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreClientRequest $request, Client $client)
+    public function update(ClientUpdateRequest $request, Client $client)
     {
         $client->update($request->validated());
 
