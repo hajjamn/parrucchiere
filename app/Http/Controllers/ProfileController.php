@@ -16,9 +16,12 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
-        return view('profile.edit', [
+        /* return view('profile.edit', [
             'user' => $request->user(),
-        ]);
+        ]); */
+
+        return view('admin.profile.edit', ['user' => $request->user()]);
+
     }
 
     /**
@@ -40,7 +43,7 @@ class ProfileController extends Controller
     /**
      * Delete the user's account.
      */
-    public function destroy(Request $request): RedirectResponse
+    /* public function destroy(Request $request): RedirectResponse
     {
         $request->validateWithBag('userDeletion', [
             'password' => ['required', 'current_password'],
@@ -56,5 +59,10 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    } */
+
+    public function destroy(Request $request)
+    {
+        abort(403, 'La cancellazione dell’account non è consentita.');
     }
 }

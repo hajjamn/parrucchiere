@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceLogController;
@@ -36,6 +37,8 @@ Route::middleware(['auth', 'verified'])
         Route::resource('services', ServiceController::class);
         //ServiceLogs Routes
         Route::resource('service-logs', ServiceLogController::class);
+        //User Routes
+        Route::resource('users', UserController::class)->only(['index', 'show']);
 
     });
 
