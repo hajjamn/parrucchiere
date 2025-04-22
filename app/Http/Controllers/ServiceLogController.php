@@ -102,7 +102,7 @@ class ServiceLogController extends Controller
 
         $serviceLog->delete();
 
-        return redirect()->route('admin-service-logs.index')->with('success', 'Prestazione eliminata con successo.');
+        return redirect()->route('admin.service-logs.index')->with('success', 'Prestazione eliminata con successo.');
     }
 
     private function authorizeAdmin()

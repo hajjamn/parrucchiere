@@ -23,8 +23,7 @@ class UpdateServiceLogRequest extends FormRequest
     {
         return [
             'client_id' => 'required|exists:clients,id',
-            'service_ids' => 'required|array|min:1',
-            'service_ids.*' => 'exists:services,id',
+            'service_id' => 'required|exists:services,id',
             'performed_at' => 'required|date|before_or_equal:' . now()->addMinute(),
 
         ];
