@@ -24,7 +24,7 @@ class ServiceLogController extends Controller
             ? ServiceLog::with(['user', 'client', 'service'])->latest()->get()
             : $user->serviceLogs()->with(['client', 'service'])->latest()->get();
 
-        return view('service-logs.index', compact('logs'));
+        return view('admin.service-logs.index', compact('logs'));
     }
 
     /**
@@ -35,7 +35,7 @@ class ServiceLogController extends Controller
         $clients = Client::all();
         $services = Service::all();
 
-        return view('service-logs.create', compact('clients', 'services'));
+        return view('admin.service-logs.create', compact('clients', 'services'));
     }
 
     /**
@@ -73,7 +73,7 @@ class ServiceLogController extends Controller
         $clients = Client::all();
         $services = Service::all();
 
-        return view('service-logs.edit', compact('serviceLog', 'clients', 'services'));
+        return view('admin.service-logs.edit', compact('serviceLog', 'clients', 'services'));
     }
 
     /**

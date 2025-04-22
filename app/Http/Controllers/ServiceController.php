@@ -10,13 +10,13 @@ class ServiceController extends Controller
     public function index()
     {
         $services = Service::all();
-        return view('services.index', compact('services'));
+        return view('admin.services.index', compact('services'));
     }
 
     public function create()
     {
         $this->authorizeAdmin();
-        return view('services.create');
+        return view('admin.services.create');
     }
 
     public function store(Request $request)
@@ -37,7 +37,7 @@ class ServiceController extends Controller
     public function edit(Service $service)
     {
         $this->authorizeAdmin();
-        return view('services.edit', compact('service'));
+        return view('admin.services.edit', compact('service'));
     }
 
     public function update(Request $request, Service $service)
