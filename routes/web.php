@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\ServiceLogController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -30,6 +32,10 @@ Route::middleware(['auth', 'verified'])
 
         //Client Routes
         Route::resource('clients', ClientController::class);
+        //Service Routes
+        Route::resource('services', ServiceController::class);
+        //ServiceLogs Routes
+        Route::resource('service-logs', ServiceLogController::class);
 
     });
 
