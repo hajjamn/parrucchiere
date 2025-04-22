@@ -12,11 +12,9 @@ return new class extends Migration {
     {
         Schema::create('services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
-            $table->timestamp('service_time');
-            $table->text('description');
+            $table->string('name');
             $table->decimal('price', 10, 2);
+            $table->decimal('percentage', 5, 2);
             $table->timestamps();
         });
     }

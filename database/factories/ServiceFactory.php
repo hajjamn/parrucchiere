@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Service;
+use Doctrine\Inflector\Rules\Word;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -14,13 +16,14 @@ class ServiceFactory extends Factory
      *
      * @return array<string, mixed>
      */
+
+    protected $model = Service::class;
     public function definition(): array
     {
         return [
-            'user_id' => $this->faker->numberBetween('2', '6'), /* We need to pick a random user with ID between 2 and 6 */
-            'client_id' => $this->faker->numberBetween('1', '50'), /* We need to pick a random client with ID between 1 and 50 */
-            'service_time' => $this->faker->dateTimeBetween('-3 years', 'today'),
-
+            'name' => $this->faker->word(),
+            'price' => $this->faker->randomFloat(2, 10, 300),
+            'percentage' => $this->faker->numberBetween(10, 70),
         ];
     }
 }

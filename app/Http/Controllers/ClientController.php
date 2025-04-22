@@ -59,7 +59,7 @@ class ClientController extends Controller
     {
         $client->update($request->validated());
 
-        return redirect()->route('admin.client.index')->with('success', 'Client updated successfully.');
+        return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
     }
 
     /**
@@ -69,6 +69,6 @@ class ClientController extends Controller
     {
         $client->delete();
 
-        return redirect()->route('admin.client.index')->with('success', 'Cliente eliminato con successo');
+        return redirect()->route('admin.clients.index')->with('success', 'Cliente eliminato con successo');
     }
 }

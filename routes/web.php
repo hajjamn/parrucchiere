@@ -29,15 +29,7 @@ Route::middleware(['auth', 'verified'])
         })->name('dashboard');
 
         //Client Routes
-        Route::resource('clients', ClientController::class)->names([
-            'index' => 'client.index',
-            'create' => 'client.create',
-            'store' => 'client.store',
-            'show' => 'client.show',
-            'edit' => 'client.edit',
-            'update' => 'client.update',
-            'destroy' => 'client.destroy'
-        ]);
+        Route::resource('clients', ClientController::class);
 
     });
 

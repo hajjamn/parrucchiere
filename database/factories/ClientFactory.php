@@ -16,6 +16,8 @@ class ClientFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    protected $model = Client::class;
+
     public function definition(): array
     {
         return [

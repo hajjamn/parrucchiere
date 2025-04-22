@@ -10,20 +10,14 @@ class Service extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'client_id',
-        'service_time',
-        'description',
-        'price'
+        'name',
+        'price',
+        'percentage',
     ];
 
-    public function user()
+    public function serviceLogs()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(ServiceLog::class);
     }
 
-    public function client()
-    {
-        return $this->belongsTo(Client::class);
-    }
 }
