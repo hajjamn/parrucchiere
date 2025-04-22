@@ -14,7 +14,9 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::all();
+        $this->authorizeAdmin();
+
+        $clients = Client::orderBy('last_name')->get();
         return view('admin.clients.index', compact('clients'));
     }
 
@@ -33,8 +35,15 @@ class ClientController extends Controller
     {
         $client = Client::create($request->validated());
 
-        return redirect()->back()
-            ->with('new_client_id', $client->id)
+        // If the form was submitted from the modal (ServiceLog create)
+        if ($request->input('_from_modal')) {
+            return redirect()->back()
+                ->with('new_client_id', $client->id)
+                ->with('success', 'Cliente creato con successo.');
+        }
+
+        // Otherwise, redirect to clients index
+        return redirect()->route('admin.clients.index')
             ->with('success', 'Cliente creato con successo.');
     }
 
@@ -43,6 +52,16 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
+
+        $client->load([
+            'serviceLogs' => function ($query) {
+                $query->orderByDesc('performed_at');
+            },
+            'serviceLogs.user',
+            'serviceLogs.service'
+        ]);
+
+
         return view('admin.clients.show', compact('client'));
     }
 
@@ -59,6 +78,8 @@ class ClientController extends Controller
      */
     public function update(ClientUpdateRequest $request, Client $client)
     {
+        $this->authorizeAdmin();
+
         $client->update($request->validated());
 
         return redirect()->route('admin.clients.index')->with('success', 'Client updated successfully.');
@@ -69,8 +90,17 @@ class ClientController extends Controller
      */
     public function destroy(Client $client)
     {
+        $this->authorizeAdmin();
+
         $client->delete();
 
         return redirect()->route('admin.clients.index')->with('success', 'Cliente eliminato con successo');
+    }
+
+    protected function authorizeAdmin()
+    {
+        if (auth()->user()->role !== 'admin') {
+            abort(403);
+        }
     }
 }

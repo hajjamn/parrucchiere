@@ -30,7 +30,7 @@ class ClientUpdateRequest extends FormRequest
                 'email',
                 'max:255',
                 'lowercase',
-                Rule::unique('clients', 'email')->ignore($this->client()->id())
+                Rule::unique('clients', 'email')->ignore($this->route('client')),
             ],
             'phone' => 'nullable|max:20',
             'birth_date' => 'nullable|date|before_or_equal:today',

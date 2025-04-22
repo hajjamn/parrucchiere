@@ -17,7 +17,7 @@ class Client extends Model
         'birth_date'
     ];
 
-    public function services()
+    public function serviceLogs()
     {
         return $this->hasMany(ServiceLog::class);
     }
