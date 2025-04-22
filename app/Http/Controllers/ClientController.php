@@ -14,7 +14,7 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $this->authorizeAdmin();
+        /* $this->authorizeAdmin(); */
 
         $clients = Client::orderBy('last_name')->get();
         return view('admin.clients.index', compact('clients'));
