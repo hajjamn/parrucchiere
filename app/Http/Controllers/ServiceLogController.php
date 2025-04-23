@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UpdateServiceLogRequest;
-use Illuminate\Http\Request;
-use App\Http\Requests\StoreServiceLogRequest;
+use App\Http\Requests\ServiceLogUpdateRequest;
+use App\Http\Requests\ServiceLogStoreRequest;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Service;
@@ -41,7 +40,7 @@ class ServiceLogController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreServiceLogRequest $request)
+    public function store(ServiceLogStoreRequest $request)
     {
         foreach ($request->service_ids as $serviceId) {
             ServiceLog::create([
@@ -79,7 +78,7 @@ class ServiceLogController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateServiceLogRequest $request, ServiceLog $serviceLog)
+    public function update(ServiceLogUpdateRequest $request, ServiceLog $serviceLog)
     {
         $this->authorizeAdmin();
 
