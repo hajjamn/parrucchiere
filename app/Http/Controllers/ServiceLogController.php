@@ -19,9 +19,19 @@ class ServiceLogController extends Controller
     {
         $user = Auth::user();
 
-        $logs = $user->role == 'admin'
-            ? ServiceLog::with(['user', 'client', 'service'])->latest()->get()
-            : $user->serviceLogs()->with(['client', 'service'])->latest()->get();
+        $query = ServiceLog::with(['client', 'service', 'user'])->orderByDesc('performed_at');
+
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        }
+
+        $logs = $query->get()
+            ->groupBy(function ($log) {
+                return \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d');
+            })
+            ->map(function ($logsForDate) {
+                return $logsForDate->groupBy('client_id');
+            });
 
         return view('admin.service-logs.index', compact('logs'));
     }
@@ -67,7 +77,7 @@ class ServiceLogController extends Controller
      */
     public function edit(ServiceLog $serviceLog)
     {
-        $this->authorizeAdmin();
+        $this->authorizeUserOrAdmin($serviceLog);
 
         $clients = Client::all();
         $services = Service::all();
@@ -80,7 +90,7 @@ class ServiceLogController extends Controller
      */
     public function update(ServiceLogUpdateRequest $request, ServiceLog $serviceLog)
     {
-        $this->authorizeAdmin();
+        $this->authorizeUserOrAdmin($serviceLog);
 
         $serviceLog->update([
             'client_id' => $request->client_id,
@@ -97,16 +107,18 @@ class ServiceLogController extends Controller
      */
     public function destroy(ServiceLog $serviceLog)
     {
-        $this->authorizeAdmin();
+        $this->authorizeUserOrAdmin($serviceLog);
 
         $serviceLog->delete();
 
         return redirect()->route('admin.service-logs.index')->with('success', 'Prestazione eliminata con successo.');
     }
 
-    private function authorizeAdmin()
+    private function authorizeUserOrAdmin(ServiceLog $serviceLog)
     {
-        if (auth()->user()->role !== 'admin') {
+        $user = auth()->user();
+
+        if ($user->role !== 'admin' && $serviceLog->user_id !== $user->id) {
             abort(403, 'Non autorizzato.');
         }
     }
