@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\SwitchUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
@@ -19,7 +20,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    if (Auth::check()) {
+        return redirect()->route('admin.service-logs.index');
+    }
+
+    return view('auth.login');
 });
 
 Route::middleware(['auth', 'verified'])
@@ -39,6 +44,13 @@ Route::middleware(['auth', 'verified'])
         Route::resource('service-logs', ServiceLogController::class);
         //User Routes
         Route::resource('users', UserController::class)->only(['index', 'show']);
+
+        // Switch User Routes
+        Route::controller(SwitchUserController::class)->prefix('switch-user')->name('switch-user.')->group(function () {
+            Route::get('/', 'index')->name('index');
+            Route::post('/', 'switch')->name('switch');
+        });
+
 
     });
 

@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
             [
                 'first_name' => 'Tonia',
                 'last_name' => 'Paolella',
-                'email' => 'Dolcetonia95@gmail.com',
+                'email' => 'dolcetonia95@gmail.com',
                 'role' => 'user',
                 'email_verified_at' => Carbon::now()
             ],
