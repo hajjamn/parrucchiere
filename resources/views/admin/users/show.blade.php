@@ -37,19 +37,19 @@
                             <td>€{{ number_format(($log->service->price * $log->service->percentage) / 100, 2, ',', '.') }}</td>
 
                             @if (auth()->user()->role === 'admin' || auth()->id() === $log->user_id)
-    <td class="text-end">
-        <a href="{{ route('admin.service-logs.edit', $log->id) }}"
-            class="btn btn-sm btn-outline-primary me-1">Modifica</a>
+                                <td class="text-end">
+                                    <a href="{{ route('admin.service-logs.edit', $log->id) }}"
+                                        class="btn btn-sm btn-outline-primary me-1">Modifica</a>
 
-        <form action="{{ route('admin.service-logs.destroy', $log->id) }}" method="POST"
-            class="d-inline-block"
-            onsubmit="return confirm('Sei sicuro di voler eliminare questa prestazione?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-sm btn-outline-danger">Elimina</button>
-        </form>
-    </td>
-@endif
+                                    <form action="{{ route('admin.service-logs.destroy', $log->id) }}" method="POST"
+                                        class="d-inline-block"
+                                        onsubmit="return confirm('Sei sicuro di voler eliminare questa prestazione?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Elimina</button>
+                                    </form>
+                                </td>
+                            @endif
 
                         </tr>
                     @endforeach
