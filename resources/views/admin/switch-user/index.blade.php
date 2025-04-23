@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container mt-4">
-        <h2 class="mb-4">Cambia Profilo</h2>
+        <h2 class="mb-4">Cambia Operatore</h2>
 
         <p>Seleziona l'utente con cui vuoi effettuare il login.</p>
 
