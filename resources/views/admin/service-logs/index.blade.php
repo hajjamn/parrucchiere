@@ -2,11 +2,11 @@
 
 @section('content')
     <div class="container py-4">
-        <h1 class="mb-4">Storico Prestazioni</h1>
+        <h1 class="mb-4 text-white">Storico Prestazioni</h1>
 
         <div class="mb-3">
             <a href="{{ route('admin.service-logs.create') }}" class="btn btn-primary">
-                Aggiungi Prestazione
+               + Aggiungi Prestazione
             </a>
         </div>
 
@@ -69,7 +69,7 @@ $birthdayClientsWeek = \App\Models\Client::where(function ($query) use ($startOf
 
         {{-- Storico prestazioni --}}
         @forelse ($logs as $date => $clients)
-            <h3 class="mt-4 mb-3">{{ ucwords(\Carbon\Carbon::parse($date)->translatedFormat('l d F Y')) }}</h3>
+        <h3 class="mt-4 mb-3 text-white">{{ ucwords(\Carbon\Carbon::parse($date)->translatedFormat('l d F Y')) }}</h3>
 
             @foreach ($clients as $clientId => $serviceLogs)
                 <div class="card mb-4 shadow">

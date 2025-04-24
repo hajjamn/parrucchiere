@@ -1,1 +1,116 @@
-@import '~bootstrap/scss/bootstrap'
+$theme-colors: (
+  "primary": #F15A94,      // Fuchsia Pink
+  "secondary": #2B1A42,    // Deep Violet
+  "success": #F7941E,      // Orange
+  "warning": #FFD400,      // Yellow
+  "danger": #F78CA2,       // Light Pink
+  "light": #f8f9fa,
+  "dark": #212529
+);
+
+@use "sass:map";
+@use "sass:color";
+
+// Import Bootstrap first
+@import '~bootstrap/scss/bootstrap';
+
+// Buttons
+@each $color-name, $color-value in $theme-colors {
+  .btn-#{$color-name} {
+    background-color: $color-value;
+    border-color: $color-value;
+    color: if(color.lightness($color-value) < 50, #fff, #000);
+
+    &:hover,
+    &:focus,
+    &:active {
+      background-color: color.scale($color-value, $lightness: -10%);
+      border-color: color.scale($color-value, $lightness: -12%);
+      color: if(color.lightness(color.scale($color-value, $lightness: -10%)) < 50, #fff, #000);
+    }
+  }
+
+  .btn-outline-#{$color-name} {
+    color: $color-value;
+    border-color: $color-value;
+
+    &:hover {
+      background-color: $color-value;
+      color: if(color.lightness($color-value) < 50, #fff, #000);
+    }
+  }
+}
+
+// Alerts and Badges
+@each $color-name, $color-value in $theme-colors {
+  .alert-#{$color-name} {
+    background-color: $color-value;
+    border-color: color.scale($color-value, $lightness: -10%);
+    color: if(color.lightness($color-value) < 50, #fff, #000);
+  }
+
+  .badge-#{$color-name} {
+    background-color: $color-value;
+    color: if(color.lightness($color-value) < 50, #fff, #000);
+  }
+}
+
+// Global link styling
+a {
+  color: map.get($theme-colors, 'primary');
+  text-decoration: underline;
+
+  &:hover {
+    color: color.scale(map.get($theme-colors, 'primary'), $lightness: -10%);
+  }
+}
+
+// Background styling
+body {
+  background: url('/images/background.jpg') no-repeat center center fixed;
+  background-size: cover;
+  position: relative;
+  z-index: 0;
+  min-height: 100vh;
+  font-family: 'Nunito', sans-serif;
+}
+
+// Overlay
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: -1;
+}
+
+// UI Elements (cards, modals, navbar, etc.)
+.card,
+.navbar,
+.modal-content {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(3px);
+  border-radius: 12px;
+}
+
+.alert {
+    backdrop-filter: blur(2px);
+    border-radius: 10px;
+    font-weight: 500;
+  
+    &.alert-info {
+      background-color: rgba(0, 123, 255, 0.8);
+      color: white;
+    }
+  
+    &.alert-warning {
+      background-color: rgba(255, 193, 7, 0.9);
+      color: black;
+    }
+  
+    a {
+      color: inherit;
+      font-weight: bold;
+      text-decoration: underline;
+    }
+  }  

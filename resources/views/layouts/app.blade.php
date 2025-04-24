@@ -62,6 +62,9 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('admin.users.index') }}">Operatori</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.services.index') }}">Servizi</a>
+                                </li>
                             @endif
                             <li class="nav-item">
                                 @if (auth()->user()->role !== 'admin')
