@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Requests\StoreUserRequest;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -39,9 +41,42 @@ class UserController extends Controller
         return view('admin.users.show', compact('user'));
     }
 
-    /**
-     * Prevent unauthorized access.
-     */
+    public function create()
+    {
+        $this->authorizeAdmin();
+
+        return view('admin.users.create');
+    }
+
+    public function store(StoreUserRequest $request)
+    {
+        $this->authorizeAdmin();
+
+        $validated = $request->validated();
+
+        User::create([
+            ...$validated,
+            'role' => 'user',
+            'password' => Hash::make($validated['password']),
+            'email_verified_at' => now(),
+        ]);
+
+        return redirect()->route('admin.users.index')->with('success', 'Utente creato con successo.');
+    }
+
+    public function destroy(User $user)
+    {
+        $this->authorizeAdmin();
+
+        if (auth()->id() === $user->id) {
+            return redirect()->back()->with('error', 'Non puoi eliminare il tuo stesso account.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', 'Utente eliminato con successo.');
+    }
+
     private function authorizeAdmin()
     {
         if (Auth::user()->role !== 'admin') {

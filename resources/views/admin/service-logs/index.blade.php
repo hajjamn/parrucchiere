@@ -10,6 +10,30 @@
             </a>
         </div>
 
+        {{-- 🎉 Compleanni Oggi --}}
+        @php
+            $today = \Carbon\Carbon::today();
+            $birthdayClients = \App\Models\Client::whereMonth('birth_date', $today->month)
+                ->whereDay('birth_date', $today->day)
+                ->get();
+        @endphp
+
+        @if ($birthdayClients->isNotEmpty())
+            <div class="alert alert-info">
+                <h5 class="mb-2">🎉 Compleanni di oggi:</h5>
+                <ul class="mb-0">
+                    @foreach ($birthdayClients as $client)
+                        <li>
+                            <a href="{{ route('admin.clients.show', $client->id) }}">
+                                {{ $client->first_name }} {{ $client->last_name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        {{-- Storico prestazioni --}}
         @forelse ($logs as $date => $clients)
             <h3 class="mt-4 mb-3">{{ ucwords(\Carbon\Carbon::parse($date)->translatedFormat('l d F Y')) }}</h3>
 
@@ -44,14 +68,13 @@
                                         <td>{{ \Carbon\Carbon::parse($log->performed_at)->format('H:i') }}</td>
                                         <td>€{{ number_format($log->service->price ?? 0, 2, ',', '.') }}</td>
                                         <td>{{ $log->service->percentage }}%</td>
-                                        <td>€{{ number_format(($log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}
-                                        </td>
+                                        <td>€{{ number_format(($log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}</td>
                                         <td class="text-center">
                                             <a href="{{ route('admin.service-logs.edit', $log->id) }}"
-                                                class="btn btn-sm btn-outline-primary me-1">Modifica</a>
+                                               class="btn btn-sm btn-outline-primary me-1">Modifica</a>
                                             <form action="{{ route('admin.service-logs.destroy', $log->id) }}" method="POST"
-                                                class="d-inline-block"
-                                                onsubmit="return confirm('Sei sicuro di voler eliminare questa prestazione?')">
+                                                  class="d-inline-block"
+                                                  onsubmit="return confirm('Sei sicuro di voler eliminare questa prestazione?')">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger">Elimina</button>

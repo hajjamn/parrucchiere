@@ -43,7 +43,7 @@ Route::middleware(['auth', 'verified'])
         //ServiceLogs Routes
         Route::resource('service-logs', ServiceLogController::class);
         //User Routes
-        Route::resource('users', UserController::class)->only(['index', 'show']);
+        Route::resource('users', UserController::class);
 
         // Switch User Routes
         Route::controller(SwitchUserController::class)->prefix('switch-user')->name('switch-user.')->group(function () {
