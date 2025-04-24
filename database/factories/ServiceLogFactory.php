@@ -6,6 +6,7 @@ use App\Models\ServiceLog;
 use App\Models\User;
 use App\Models\Client;
 use App\Models\Service;
+use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,11 +24,24 @@ class ServiceLogFactory extends Factory
 
     public function definition(): array
     {
+        $service = Service::inRandomOrder()->first();
+        $customPrice = null;
+
+        if ($service->is_variable_price) {
+            if ($service->price) {
+                $quantity = fake()->numberBetween(1, 10);
+                $customPrice = $quantity * $service->price;
+            } else {
+                $customPrice = fake()->randomFloat(2, 5, 100);
+            }
+        }
+
         return [
-            'user_id' => User::inRandomOrder()->value('id'),
-            'client_id' => Client::inRandomOrder()->value('id'),
-            'service_id' => Service::inRandomOrder()->value('id'),
-            'performed_at' => $this->faker->dateTimeBetween('-6 months', 'now'),
+            'user_id' => User::inRandomOrder()->first()->id,
+            'client_id' => Client::inRandomOrder()->first()->id,
+            'service_id' => $service->id,
+            'performed_at' => Carbon::now()->subDays(fake()->numberBetween(0, 30)),
+            'custom_price' => $customPrice,
         ];
     }
 }

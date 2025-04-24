@@ -41,7 +41,8 @@ class ServiceLogController extends Controller
      */
     public function create()
     {
-        $clients = Client::all();
+        $clients = Client::orderBy('last_name')->orderBy('first_name')->get();
+
         $services = Service::all();
 
         return view('admin.service-logs.create', compact('clients', 'services'));

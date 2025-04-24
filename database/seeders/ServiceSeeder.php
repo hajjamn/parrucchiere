@@ -154,12 +154,14 @@ class ServiceSeeder extends Seeder
             ],
             [
                 'name' => 'Extensions',
-                'price' => 0,
+                'price' => 3,
+                'is_variable_price' => true,
             ],
             [
                 'name' => 'Vendita',
                 'price' => null,
                 'percentage' => 10,
+                'is_variable_price' => true,
             ],
             [
                 'name' => 'Supplemento Anti-giallo',

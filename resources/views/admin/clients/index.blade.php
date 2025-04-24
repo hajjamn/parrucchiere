@@ -20,6 +20,7 @@
                         <th>Nome</th>
                         <th>Email</th>
                         <th>Telefono</th>
+                        <th>Data di nascita</th>
                         <th class="text-center">Azioni</th>
                     </tr>
                 </thead>
@@ -30,6 +31,9 @@
                             <td>{{ $client->first_name }}</td>
                             <td>{{ $client->email }}</td>
                             <td>{{ $client->phone }}</td>
+                            <td>
+                                {{ $client->birth_date ? \Carbon\Carbon::parse($client->birth_date)->format('d/m/Y') : '—' }}
+                            </td>
                             <td class="text-center">
                                 <a href="{{ route('admin.clients.show', $client) }}" class="btn btn-sm btn-outline-secondary me-1">
                                     Dettagli

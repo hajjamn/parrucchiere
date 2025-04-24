@@ -13,6 +13,6 @@ class ServiceLogSeeder extends Seeder
      */
     public function run(): void
     {
-        ServiceLog::factory()->count(50)->create();
+        ServiceLog::factory()->count(500)->create();
     }
 }

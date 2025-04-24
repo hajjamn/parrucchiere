@@ -10,28 +10,62 @@
             </a>
         </div>
 
-        {{-- 🎉 Compleanni Oggi --}}
-        @php
-            $today = \Carbon\Carbon::today();
-            $birthdayClients = \App\Models\Client::whereMonth('birth_date', $today->month)
-                ->whereDay('birth_date', $today->day)
-                ->get();
-        @endphp
+        {{-- 🎉 Compleanni --}}
+@php
+use Illuminate\Support\Carbon;
 
-        @if ($birthdayClients->isNotEmpty())
-            <div class="alert alert-info">
-                <h5 class="mb-2">🎉 Compleanni di oggi:</h5>
-                <ul class="mb-0">
-                    @foreach ($birthdayClients as $client)
-                        <li>
-                            <a href="{{ route('admin.clients.show', $client->id) }}">
-                                {{ $client->first_name }} {{ $client->last_name }}
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+$today = Carbon::today();
+$startOfWeek = $today->copy()->startOfWeek(Carbon::MONDAY);
+$endOfWeek = $today->copy()->endOfWeek(Carbon::SUNDAY);
+
+// Oggi
+$birthdayClientsToday = \App\Models\Client::whereMonth('birth_date', $today->month)
+    ->whereDay('birth_date', $today->day)
+    ->get();
+
+// Questa settimana (escludendo oggi)
+$birthdayClientsWeek = \App\Models\Client::where(function ($query) use ($startOfWeek, $endOfWeek, $today) {
+    $query->whereBetween(
+        \DB::raw("STR_TO_DATE(CONCAT(YEAR(CURDATE()), '-', MONTH(birth_date), '-', DAY(birth_date)), '%Y-%m-%d')"),
+        [$startOfWeek, $endOfWeek]
+    )->where(function ($q) use ($today) {
+        $q->whereMonth('birth_date', '!=', $today->month)
+          ->orWhereDay('birth_date', '!=', $today->day);
+    });
+})->get();
+@endphp
+
+@if ($birthdayClientsToday->isNotEmpty())
+<div class="alert alert-info">
+    <h5 class="mb-2">🎉 Compleanni di oggi:</h5>
+    <ul class="mb-0">
+        @foreach ($birthdayClientsToday as $client)
+            <li>
+                <a href="{{ route('admin.clients.show', $client->id) }}">
+                    {{ $client->first_name }} {{ $client->last_name }}
+                </a>
+            </li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+@if ($birthdayClientsWeek->isNotEmpty())
+<div class="alert alert-warning">
+    <h5 class="mb-2">📅 Compleanni di questa settimana:</h5>
+    <ul class="mb-0">
+        @foreach ($birthdayClientsWeek as $client)
+            <li>
+                <a href="{{ route('admin.clients.show', $client->id) }}">
+                    {{ $client->first_name }} {{ $client->last_name }}
+                </a>
+                — {{ \Carbon\Carbon::parse($client->birth_date)->translatedFormat('l d F') }}
+            </li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
 
         {{-- Storico prestazioni --}}
         @forelse ($logs as $date => $clients)
@@ -66,9 +100,9 @@
                                         @endif
                                         <td>{{ $log->service->name }}</td>
                                         <td>{{ \Carbon\Carbon::parse($log->performed_at)->format('H:i') }}</td>
-                                        <td>€{{ number_format($log->service->price ?? 0, 2, ',', '.') }}</td>
+                                        <td>€{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }}</td>
                                         <td>{{ $log->service->percentage }}%</td>
-                                        <td>€{{ number_format(($log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}</td>
+                                        <td>€{{ number_format(($log->custom_price ?? $log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}</td>
                                         <td class="text-center">
                                             <a href="{{ route('admin.service-logs.edit', $log->id) }}"
                                                class="btn btn-sm btn-outline-primary me-1">Modifica</a>

@@ -47,7 +47,7 @@
                             <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
                             <td>{{ $log->service->name }}</td>
                             <td>{{ \Carbon\Carbon::parse($log->performed_at)->format('d/m/Y H:i') }}</td>
-                            <td>€{{ number_format($log->service->price, 2, ',', '.') }}</td>
+                            <td>€{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }} </td>
 
                             @if (auth()->user()->role === 'admin' || auth()->id() === $log->user_id)
                                 <td class="text-end">
