@@ -13,6 +13,7 @@ class ServiceLog extends Model
         'user_id',
         'client_id',
         'service_id',
+        'custom_price',
         'performed_at'
     ];
 

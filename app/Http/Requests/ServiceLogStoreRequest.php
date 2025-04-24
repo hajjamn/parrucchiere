@@ -19,14 +19,15 @@ class ServiceLogStoreRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
             'client_id' => 'required|exists:clients,id',
             'service_ids' => 'required|array|min:1',
             'service_ids.*' => 'exists:services,id',
-            'performed_at' => 'required|date|before_or_equal:' . now()->addMinute(),
-
+            'performed_at' => 'required|date',
+            'custom_prices' => 'nullable|array',
+            'custom_prices.*' => 'nullable|numeric|min:0',
         ];
     }
 }

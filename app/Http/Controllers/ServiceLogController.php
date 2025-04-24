@@ -53,12 +53,15 @@ class ServiceLogController extends Controller
      */
     public function store(ServiceLogStoreRequest $request)
     {
+        $customPrices = $request->input('custom_prices', []);
+
         foreach ($request->service_ids as $serviceId) {
             ServiceLog::create([
                 'user_id' => Auth::id(),
                 'client_id' => $request->client_id,
                 'service_id' => $serviceId,
-                'performed_at' => $request->performed_at
+                'performed_at' => $request->performed_at,
+                'custom_price' => $customPrices[$serviceId] ?? null,
             ]);
         }
 
