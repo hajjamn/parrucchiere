@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
+<div class="container py-4 text-white">
     <h1 class="mb-4">Modifica prestazione</h1>
 
     @if ($errors->any())

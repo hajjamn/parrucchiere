@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container py-4">
-        <h1 class="mb-4">Clienti</h1>
+        <h1 class="mb-4 text-white">Clienti</h1>
 
         <a href="{{ route('admin.clients.create') }}" class="btn btn-primary mb-3">+ Aggiungi Cliente</a>
 

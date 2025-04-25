@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Models\Client;
 use App\Models\Service;
 use App\Models\ServiceLog;
+use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class ServiceLogController extends Controller
@@ -15,11 +17,16 @@ class ServiceLogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        $query = ServiceLog::with(['client', 'service', 'user'])->orderByDesc('performed_at');
+        // Data selezionata (o oggi di default)
+        $selectedDate = $request->input('date') ? Carbon::parse($request->input('date')) : Carbon::today();
+
+        $query = ServiceLog::with(['client', 'service', 'user'])
+            ->whereDate('performed_at', $selectedDate)
+            ->orderByDesc('performed_at');
 
         if ($user->role !== 'admin') {
             $query->where('user_id', $user->id);
@@ -31,9 +38,10 @@ class ServiceLogController extends Controller
             })
             ->map(function ($logsForDate) {
                 return $logsForDate->groupBy('client_id');
-            });
+            })
+            ->sortKeysDesc();
 
-        return view('admin.service-logs.index', compact('logs'));
+        return view('admin.service-logs.index', compact('logs', 'selectedDate'));
     }
 
     /**

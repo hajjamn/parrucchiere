@@ -2,9 +2,9 @@
 
 @section('content')
     <div class="container mt-4">
-        <h2 class="mb-4">Cambia Operatore</h2>
+        <h2 class="mb-4 text-white">Cambia Operatore</h2>
 
-        <p>Seleziona l'utente con cui vuoi effettuare il login.</p>
+        <p class="text-white">Seleziona l'utente con cui vuoi effettuare il login.</p>
 
         <ul class="list-group">
             @foreach ($users as $user)

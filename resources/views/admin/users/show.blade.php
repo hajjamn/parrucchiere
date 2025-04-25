@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container py-4">
-        <h1 class="mb-4">Profilo Utente</h1>
+        <h1 class="mb-4 text-white">Profilo Utente</h1>
 
         <div class="card mb-4">
             <div class="card-body">
@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <h3 class="mb-3">Prestazioni Registrate</h3>
+        <h3 class="mb-3 text-white">Prestazioni Registrate</h3>
 
         @if ($user->serviceLogs->isEmpty())
             <div class="alert alert-info">Nessuna prestazione registrata per questo utente.</div>
@@ -25,6 +25,7 @@
                         <th>Data</th>
                         <th>Prezzo</th>
                         <th>Percentuale</th>
+                        <th>Azioni</th>
                     </tr>
                 </thead>
                 <tbody>

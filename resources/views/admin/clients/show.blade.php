@@ -2,7 +2,10 @@
 
 @section('content')
     <div class="container py-4">
-        <h1 class="mb-4">Cliente: {{ $client->first_name }} {{ $client->last_name }}</h1>
+
+        <a href="{{ route('admin.clients.index') }}" class="btn btn-secondary mt-4 mb-4">Torna alla lista clienti</a>
+
+        <h1 class="mb-4 text-white">Cliente: {{ $client->first_name }} {{ $client->last_name }}</h1>
 
         <div class="card mb-4">
             <div class="card-body">
@@ -27,7 +30,7 @@
             </div>
         @endif
 
-        <h3 class="mb-3">Prestazioni Registrate</h3>
+        <h3 class="mb-3 text-white">Prestazioni Registrate</h3>
 
         @if ($client->serviceLogs->isEmpty())
             <div class="alert alert-info">Nessuna prestazione registrata per questo cliente.</div>
@@ -39,6 +42,7 @@
                         <th>Servizio</th>
                         <th>Data</th>
                         <th>Prezzo</th>
+                        <th>Azioni</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,9 +52,8 @@
                             <td>{{ $log->service->name }}</td>
                             <td>{{ \Carbon\Carbon::parse($log->performed_at)->format('d/m/Y H:i') }}</td>
                             <td>€{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }} </td>
-
-                            @if (auth()->user()->role === 'admin' || auth()->id() === $log->user_id)
-                                <td class="text-end">
+                            <td>
+                                @if (auth()->user()->role === 'admin' || auth()->id() === $log->user_id)
                                     <a href="{{ route('admin.service-logs.edit', $log->id) }}"
                                         class="btn btn-sm btn-outline-primary me-1">Modifica</a>
 
@@ -61,8 +64,9 @@
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Elimina</button>
                                     </form>
-                                </td>
-                            @endif
+
+                                @endif
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -70,6 +74,5 @@
             </table>
         @endif
 
-        <a href="{{ route('admin.clients.index') }}" class="btn btn-secondary mt-4">Torna alla lista clienti</a>
     </div>
 @endsection

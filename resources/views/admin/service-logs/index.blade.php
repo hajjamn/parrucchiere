@@ -2,14 +2,6 @@
 
 @section('content')
     <div class="container py-4">
-        <h1 class="mb-4 text-white">Storico Prestazioni</h1>
-
-        <div class="mb-3">
-            <a href="{{ route('admin.service-logs.create') }}" class="btn btn-primary">
-                + Aggiungi Prestazione
-            </a>
-        </div>
-
         @php
             use Illuminate\Support\Carbon;
 
@@ -37,6 +29,8 @@
                 return $birthdayThisYear->isBetween($startOfWeek, $endOfWeek) && !$birthdayThisYear->isSameDay($today);
             });
         @endphp
+
+
 
         @if ($birthdayClientsToday->isNotEmpty())
             <div class="alert alert-info">
@@ -71,6 +65,33 @@
                 </ul>
             </div>
         @endif
+
+        <h1 class="mb-4 text-white">Storico Prestazioni</h1>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+            <div class="d-flex align-items-center gap-2 mb-2 mb-md-0">
+                <a href="{{ route('admin.service-logs.index', ['date' => $selectedDate->copy()->subDay()->toDateString()]) }}"
+                    class="btn btn-primary btn-sm">
+                    ← Giorno precedente
+                </a>
+
+                <form method="GET" action="{{ route('admin.service-logs.index') }}">
+                    <input type="date" name="date" class="form-control" value="{{ $selectedDate->toDateString() }}"
+                        onchange="this.form.submit()">
+                </form>
+
+                <a href="{{ route('admin.service-logs.index', ['date' => $selectedDate->copy()->addDay()->toDateString()]) }}"
+                    class="btn btn-primary btn-sm">
+                    Giorno successivo →
+                </a>
+            </div>
+
+            <div>
+                <a href="{{ route('admin.service-logs.create') }}" class="btn btn-success">
+                    + Aggiungi Prestazione
+                </a>
+            </div>
+        </div>
 
         {{-- Storico prestazioni --}}
         @forelse ($logs as $date => $clients)

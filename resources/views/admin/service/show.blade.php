@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container py-4">
-        <h1 class="mb-4">Dettagli Servizio</h1>
+        <h1 class="mb-4 text-white">Dettagli Servizio</h1>
 
         <div class="card mb-4">
             <div class="card-body">
@@ -15,7 +15,7 @@
             </div>
         </div>
 
-        <h5>Prestazioni con questo servizio</h5>
+        <h5 class="text-white">Prestazioni con questo servizio</h5>
 
         @if ($service->serviceLogs->isEmpty())
             <div class="alert alert-info">Nessuna prestazione trovata per questo servizio.</div>

@@ -3,7 +3,7 @@
 @section('content')
     <div class="container py-4">
         <h1 class="mb-4 d-flex justify-content-between align-items-center">
-            <span>Utenti</span>
+            <span class="text-white">Utenti</span>
             <a href="{{ route('admin.users.create') }}" class="btn btn-success btn-sm">+ Nuovo Utente</a>
         </h1>
 
