@@ -5,17 +5,26 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ClientStoreRequest;
 use App\Http\Requests\ClientUpdateRequest;
 use App\Models\Client;
+use Illuminate\Http\Request;
 
 class ClientController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        /* $this->authorizeAdmin(); */
+        $query = \App\Models\Client::query();
 
-        $clients = Client::orderBy('last_name')->get();
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('first_name', 'like', "%{$search}%")
+                    ->orWhere('last_name', 'like', "%{$search}%");
+            });
+        }
+
+        $clients = $query->orderBy('last_name')->get();
+
         return view('admin.clients.index', compact('clients'));
     }
 

@@ -32,14 +32,25 @@ class UserController extends Controller
             abort(403, 'Non sei autorizzato a vedere questo profilo.');
         }
 
+        $startDate = request('start_date') ? \Carbon\Carbon::parse(request('start_date')) : now()->startOfMonth();
+        $endDate = request('end_date') ? \Carbon\Carbon::parse(request('end_date')) : now()->endOfMonth();
+
         $user->load([
-            'serviceLogs' => function ($query) {
-                $query->with(['client', 'service'])->orderByDesc('performed_at');
+            'serviceLogs' => function ($query) use ($startDate, $endDate) {
+                $query->with(['client', 'service'])
+                    ->whereBetween('performed_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+                    ->orderByDesc('performed_at');
             }
         ]);
 
-        return view('admin.users.show', compact('user'));
+        $totalCommission = $user->serviceLogs->sum(function ($log) {
+            $price = $log->custom_price ?? $log->service->price ?? 0;
+            return ($price * $log->service->percentage) / 100;
+        });
+
+        return view('admin.users.show', compact('user', 'startDate', 'endDate', 'totalCommission'));
     }
+
 
     public function create()
     {

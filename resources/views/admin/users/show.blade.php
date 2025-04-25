@@ -12,6 +12,34 @@
             </div>
         </div>
 
+        {{-- Filtro per date --}}
+        <form method="GET" action="{{ route('admin.users.show', $user->id) }}" class="d-flex gap-2 flex-wrap mb-4">
+            <div>
+                <label for="start_date" class="form-label text-white">Data Inizio</label>
+                <input type="date" id="start_date" name="start_date" class="form-control"
+                    value="{{ $startDate->toDateString() }}">
+            </div>
+
+            <div>
+                <label for="end_date" class="form-label text-white">Data Fine</label>
+                <input type="date" id="end_date" name="end_date" class="form-control"
+                    value="{{ $endDate->toDateString() }}">
+            </div>
+
+            <div class="d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary">Filtra</button>
+
+                <a href="{{ route('admin.users.show', $user->id) }}" class="btn btn-secondary">
+                    Reset
+                </a>
+            </div>
+        </form>
+
+        {{-- Totale guadagnato --}}
+        <div class="alert alert-success">
+            Totale guadagnato: <strong>€{{ number_format($totalCommission, 2, ',', '.') }}</strong>
+        </div>
+
         <h3 class="mb-3 text-white">Prestazioni Registrate</h3>
 
         @if ($user->serviceLogs->isEmpty())
@@ -25,6 +53,7 @@
                         <th>Data</th>
                         <th>Prezzo</th>
                         <th>Percentuale</th>
+                        <th>Commissione</th>
                         <th>Azioni</th>
                     </tr>
                 </thead>
@@ -34,8 +63,10 @@
                             <td>{{ $log->client->first_name }} {{ $log->client->last_name }}</td>
                             <td>{{ $log->service->name }}</td>
                             <td>{{ \Carbon\Carbon::parse($log->performed_at)->format('d/m/Y H:i') }}</td>
-                            <td>€{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }} </td>
-                            <td>€{{ number_format(($log->custom_price ?? $log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}
+                            <td>€{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }}</td>
+                            <td>{{ $log->service->percentage }}%</td>
+                            <td>
+                                €{{ number_format((($log->custom_price ?? $log->service->price ?? 0) * $log->service->percentage) / 100, 2, ',', '.') }}
                             </td>
 
                             @if (auth()->user()->role === 'admin' || auth()->id() === $log->user_id)

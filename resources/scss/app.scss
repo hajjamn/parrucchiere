@@ -81,7 +81,8 @@ body::before {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
-  z-index: -1;
+  z-index: -2;
+  pointer-events: none;
 }
 
 // UI Elements (cards, modals, navbar, etc.)
@@ -94,23 +95,31 @@ body::before {
 }
 
 .alert {
-    backdrop-filter: blur(2px);
-    border-radius: 10px;
-    font-weight: 500;
+  pointer-events: none; // <--- ADD THIS
+  position: relative;
+  backdrop-filter: blur(2px);
+  border-radius: 10px;
+  font-weight: 500;
   
-    &.alert-info {
-      background-color: rgba(0, 123, 255, 0.8);
-      color: white;
-    }
+  &.alert-info {
+    background-color: rgba(0, 123, 255, 0.8);
+    color: white;
+  }
   
-    &.alert-warning {
-      background-color: rgba(255, 193, 7, 0.9);
-      color: black;
-    }
-  
-    a {
-      color: inherit;
-      font-weight: bold;
-      text-decoration: underline;
-    }
-  }  
+  &.alert-warning {
+    background-color: rgba(255, 193, 7, 0.9);
+    color: black;
+  }
+
+  a {
+    pointer-events: auto; // <--- allow clicks on links inside
+    color: inherit;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+}
+
+.navbar {
+  z-index: 2000 !important;
+  position:relative;
+}

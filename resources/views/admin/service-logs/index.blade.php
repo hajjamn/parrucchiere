@@ -100,7 +100,7 @@
             </h3>
 
             @foreach ($clients as $clientId => $serviceLogs)
-                <div class="card mb-4 shadow">
+                <div class="card mb-4 shadow bg-secondary text-white">
                     <div class="card-header">
                         <strong>{{ $serviceLogs->first()->client->first_name }}
                             {{ $serviceLogs->first()->client->last_name }}</strong>

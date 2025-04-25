@@ -4,7 +4,16 @@
     <div class="container py-4">
         <h1 class="mb-4 text-white">Clienti</h1>
 
-        <a href="{{ route('admin.clients.create') }}" class="btn btn-primary mb-3">+ Aggiungi Cliente</a>
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <form method="GET" action="{{ route('admin.clients.index') }}" class="d-flex" role="search">
+                <input type="text" name="search" class="form-control me-2" placeholder="Cerca nome o cognome"
+                    value="{{ request('search') }}">
+                <button type="submit" class="btn btn-outline-light">Cerca</button>
+            </form>
+
+            <a href="{{ route('admin.clients.create') }}" class="btn btn-success">+ Aggiungi Cliente</a>
+        </div>
+
 
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
