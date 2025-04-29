@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+{{-- AGGIUSTA LE EXTENSION CHE PRENDONO DIRETTAMENTE IL CUSTOM --}}
+
+{{-- TOKEN CON LA MAIL PER IL CONSENSO DELLA PRIVACY --}}
+
 @section('content')
 <div class="container py-4">
     <h1 class="mb-4 text-white">Registra una nuova prestazione</h1>
