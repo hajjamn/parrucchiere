@@ -27,8 +27,10 @@
                     <tr>
                         <th>Cognome</th>
                         <th>Nome</th>
-                        <th>Email</th>
-                        <th>Telefono</th>
+                        @if(auth()->user()->role === 'admin')
+                            <th>Email</th>
+                            <th>Telefono</th>
+                        @endif
                         <th>Data di nascita</th>
                         <th class="text-center">Azioni</th>
                     </tr>
@@ -38,8 +40,10 @@
                         <tr>
                             <td>{{ $client->last_name }}</td>
                             <td>{{ $client->first_name }}</td>
-                            <td>{{ $client->email }}</td>
-                            <td>{{ $client->phone }}</td>
+                            @if(auth()->user()->role === 'admin')
+                                <td>{{ $client->email }}</td>
+                                <td>{{ $client->phone }}</td>
+                            @endif
                             <td>
                                 {{ $client->birth_date ? \Carbon\Carbon::parse($client->birth_date)->format('d/m/Y') : '—' }}
                             </td>
