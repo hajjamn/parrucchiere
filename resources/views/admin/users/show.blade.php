@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <div class="container py-4">
         <h1 class="mb-4 text-white">Profilo Utente</h1>
 
@@ -39,6 +42,77 @@
         <div class="alert alert-success">
             Totale guadagnato: <strong>€{{ number_format($totalCommission, 2, ',', '.') }}</strong>
         </div>
+
+        @if (!empty($commissionOverTime))
+            <div class="card mb-4">
+                <div class="card-body">
+                    <canvas id="commissionChart"></canvas>
+                </div>
+            </div>
+
+            <script>
+                const ctx = document.getElementById('commissionChart').getContext('2d');
+                const commissionChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: {!! json_encode($commissionOverTime->keys()) !!},
+                        datasets: [{
+                            label: 'Commissioni giornaliere (€)',
+                            data: {!! json_encode($commissionOverTime->values()) !!},
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            </script>
+        @endif
+
+        @if ($commissionByService->isNotEmpty())
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">Distribuzione Commissioni per Servizio</h4>
+                    <canvas id="commissionByServiceChart"></canvas>
+                </div>
+            </div>
+
+            <script>
+                const servicePieCtx = document.getElementById('commissionByServiceChart').getContext('2d');
+                new Chart(servicePieCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: {!! json_encode($commissionByService->keys()) !!},
+                        datasets: [{
+                            label: 'Commissione (€)',
+                            data: {!! json_encode($commissionByService->values()) !!},
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: function (context) {
+                                        const label = context.label || '';
+                                        const value = context.parsed;
+                                        return `${label}: €${value.toFixed(2)}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            </script>
+        @endif
+
+
 
         <h3 class="mb-3 text-white">Prestazioni Registrate</h3>
 
@@ -92,4 +166,5 @@
 
         <a href="{{ route('admin.users.index') }}" class="btn btn-secondary mt-4">Torna alla lista utenti</a>
     </div>
+
 @endsection
