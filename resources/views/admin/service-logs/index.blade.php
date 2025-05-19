@@ -52,15 +52,15 @@
                 <h5 class="mb-2">📅 Compleanni di questa settimana:</h5>
                 <ul class="mb-0">
                     @foreach ($birthdayClientsWeek as $client)
-                            @php
-                                $birthdayThisYear = Carbon::createFromFormat('Y-m-d', now()->year . '-' . date('m-d', strtotime($client->birth_date)));
-                            @endphp
-                            <li>
-                                <a href="{{ route('admin.clients.show', $client->id) }}">
-                                    {{ $client->first_name }} {{ $client->last_name }}
-                                </a>
-                                — {{ ucwords($birthdayThisYear->translatedFormat('l d F')) }}
-                            </li>
+                        @php
+                            $birthdayThisYear = Carbon::createFromFormat('Y-m-d', now()->year . '-' . date('m-d', strtotime($client->birth_date)));
+                        @endphp
+                        <li>
+                            <a href="{{ route('admin.clients.show', $client->id) }}">
+                                {{ $client->first_name }} {{ $client->last_name }}
+                            </a>
+                            — {{ ucwords($birthdayThisYear->translatedFormat('l d F')) }}
+                        </li>
                     @endforeach
                 </ul>
             </div>
@@ -147,6 +147,27 @@
                                 @endforeach
                             </tbody>
                         </table>
+
+                        {{-- TOTALI --}}
+                        <div class="card-footer bg-dark text-white">
+                            @php
+                                $totalPrice = $serviceLogs->sum(function ($log) {
+                                    return $log->custom_price ?? $log->service->price ?? 0;
+                                });
+
+                                $totalPercentageValue = $serviceLogs->sum(function ($log) {
+                                    $price = $log->custom_price ?? $log->service->price ?? 0;
+                                    return $price * ($log->service->percentage ?? 0) / 100;
+                                });
+                            @endphp
+
+                            <div class="d-flex justify-content-between">
+                                <span><strong>Totale Prezzo:</strong> €{{ number_format($totalPrice, 2, ',', '.') }}</span>
+                                <span><strong>Totale Percentuale:</strong>
+                                    €{{ number_format($totalPercentageValue, 2, ',', '.') }}</span>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             @endforeach
