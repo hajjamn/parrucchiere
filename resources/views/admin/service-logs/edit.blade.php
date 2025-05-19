@@ -55,6 +55,12 @@
                 value="{{ old('custom_price', $serviceLog->custom_price) }}">
         </div>
 
+        {{-- Note --}}
+        <div class="mb-3">
+            <label for="notes" class="form-label">Note</label>
+            <textarea name="notes" id="notes" rows="3" class="form-control">{{ old('notes', $serviceLog->notes) }}</textarea>
+        </div>
+
         {{-- Data --}}
         <div class="mb-3">
             <label for="performed_at" class="form-label">Data e ora</label>

@@ -109,6 +109,7 @@ class ServiceLogController extends Controller
             'service_id' => $request->service_id,
             'performed_at' => $request->performed_at,
             'custom_price' => $request->custom_price,
+            'notes' => $request->notes
         ]);
 
         return redirect()->route('admin.service-logs.index')->with('success', 'Prestazione aggiornata con successo.');
