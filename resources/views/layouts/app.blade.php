@@ -104,7 +104,7 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ url('profile') }}">Profilo</a>
+                                    <a class="dropdown-item" href="{{ route('profile.edit') }}">Profilo</a>
                                     <a class="dropdown-item" href="{{ route('admin.switch-user.index') }}">Cambia
                                         Operatore</a>
 
