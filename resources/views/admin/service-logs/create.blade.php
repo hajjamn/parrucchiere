@@ -48,6 +48,11 @@
             <div class="card-body">
                 <div class="row">
                     @foreach ($services as $service)
+                        @php
+                            $isAbbonamento = str_contains(strtolower($service->name), 'abbonamento');
+
+                            $isAdmin = auth()->user()->role === 'admin';
+                        @endphp
                         <div class="col-md-6 col-lg-4 mb-3">
                             <div class="form-check mb-1">
                                 <input type="checkbox" class="form-check-input service-checkbox"
@@ -60,17 +65,24 @@
                             </div>
 
                             @if ($service->is_variable_price)
-                                <input
-                                    type="number"
-                                    class="form-control form-control-sm variable-price"
-                                    data-related-checkbox="service_{{ $service->id }}"
-                                    name="custom_prices[{{ $service->id }}]"
-                                    placeholder="{{ $service->name === 'Extensions' ? 'Numero di ciocche' : 'Prezzo del prodotto' }}"
-                                    value="{{ old('custom_prices.' . $service->id) }}"
-                                    style="display: none;"
-                                    min="0"
-                                    step="{{ $service->name === 'Extensions' ? '1' : '0.01' }}"
-                                >
+                                <div class="mt-1">
+                                    <input
+    type="number"
+    class="form-control form-control-sm variable-price"
+    data-related-checkbox="service_{{ $service->id }}"
+    name="custom_prices[{{ $service->id }}]"
+    placeholder="{{ $service->name === 'Extensions' ? 'Numero di ciocche' : 'Prezzo del prodotto' }}"
+    value="{{ old('custom_prices.' . $service->id, (!$isAdmin && $isAbbonamento) ? 0 : '') }}"
+    style="display: none;"
+    min="0"
+    step="{{ $service->name === 'Extensions' ? '1' : '0.01' }}"
+    @if (!$isAdmin && $isAbbonamento) disabled readonly @endif
+>
+
+                                    @if (!$isAdmin && $isAbbonamento)
+                                        <small class="text-muted d-block">Il prezzo per questo servizio è fisso e non modificabile.</small>
+                                    @endif
+                                </div>
                             @endif
                         </div>
                     @endforeach
@@ -99,7 +111,12 @@
 
 @endsection
 
+
 @push('scripts')
+<script>
+    const IS_ADMIN = @json(auth()->user()->role === 'admin');
+</script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             $('#client_id').select2({
@@ -110,16 +127,25 @@
 
             // Mostra input custom_price solo se il checkbox è selezionato
             document.querySelectorAll('.service-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', function () {
-                    const id = this.id;
-                    document.querySelectorAll(`.variable-price[data-related-checkbox="${id}"]`).forEach(input => {
-                        input.style.display = this.checked ? 'block' : 'none';
-                    });
-                });
+    checkbox.addEventListener('change', function () {
+        const id = this.id;
+        const relatedInputs = document.querySelectorAll(`.variable-price[data-related-checkbox="${id}"]`);
 
-                // Trigger iniziale per caricare stato corretto
-                checkbox.dispatchEvent(new Event('change'));
-            });
+        relatedInputs.forEach(input => {
+            // Show the input if checkbox is checked, hide if not
+            input.style.display = this.checked ? 'block' : 'none';
+
+            // Optionally clear the value when hidden
+            if (!this.checked) {
+                input.value = '';
+            }
+        });
+    });
+
+    checkbox.dispatchEvent(new Event('change')); // Trigger initial state
+});
+
+
 
             // Mostra modale se il form modale aveva errori
             @if ($errors->any() && old('_from_modal'))

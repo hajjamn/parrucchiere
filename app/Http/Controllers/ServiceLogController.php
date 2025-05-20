@@ -62,14 +62,24 @@ class ServiceLogController extends Controller
     public function store(ServiceLogStoreRequest $request)
     {
         $customPrices = $request->input('custom_prices', []);
+        $isAdmin = auth()->user()->role === 'admin';
 
         foreach ($request->service_ids as $serviceId) {
+            $service = Service::find($serviceId);
+
+            $customPrice = $customPrices[$serviceId] ?? null;
+
+            // Block custom price input for "Abbonamento" if not admin
+            if (!$isAdmin && strtolower($service->name) === 'abbonamento') {
+                $customPrice = 0;
+            }
+
             ServiceLog::create([
                 'user_id' => Auth::id(),
                 'client_id' => $request->client_id,
                 'service_id' => $serviceId,
                 'performed_at' => $request->performed_at,
-                'custom_price' => $customPrices[$serviceId] ?? null,
+                'custom_price' => $customPrice,
             ]);
         }
 
@@ -104,17 +114,21 @@ class ServiceLogController extends Controller
     {
         $this->authorizeUserOrAdmin($serviceLog);
 
-        $serviceLog->update([
-            'client_id' => $request->client_id,
-            'service_id' => $request->service_id,
-            'performed_at' => $request->performed_at,
-            'custom_price' => $request->custom_price,
-            'notes' => $request->notes
-        ]);
+        $data = $request->validated();
+
+        // Prevent custom_price update if user is NOT admin and service is "Abbonamento"
+        $isAdmin = auth()->user()->role === 'admin';
+        $service = Service::find($data['service_id']);
+
+        if (!$isAdmin && strtolower($service?->name ?? '') === 'abbonamento') {
+            unset($data['custom_price']); // Prevent overwrite
+        }
+
+        $serviceLog->update($data);
 
         return redirect()->route('admin.service-logs.index')->with('success', 'Prestazione aggiornata con successo.');
-
     }
+
 
     /**
      * Remove the specified resource from storage.
