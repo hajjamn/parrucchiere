@@ -58,10 +58,16 @@ class ServiceController extends Controller
             'percentage' => 'required|numeric|min:0|max:100',
         ]);
 
+        // Prevent updating price if the service is "Abbonamento"
+        if (strtolower($service->name) === 'abbonamento') {
+            unset($validated['price']); // Strip price if someone tries to submit it anyway
+        }
+
         $service->update($validated);
 
         return redirect()->route('admin.services.index')->with('success', 'Servizio modificato con successo.');
     }
+
 
     public function destroy(Service $service)
     {

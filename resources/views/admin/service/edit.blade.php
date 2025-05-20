@@ -25,11 +25,20 @@
                        value="{{ old('name', $service->name) }}">
             </div>
 
-            <div class="mb-3">
-                <label for="price" class="form-label">Prezzo (€)</label>
-                <input type="number" step="0.01" min="0" name="price" id="price" class="form-control" required
-                       value="{{ old('price', $service->price) }}">
-            </div>
+            @php
+    $isAbbonamento = strtolower($service->name) === 'abbonamento';
+@endphp
+
+<div class="mb-3">
+    <label for="price" class="form-label">Prezzo (€)</label>
+    <input type="number" step="0.01" min="0" name="price" id="price"
+           class="form-control {{ $isAbbonamento ? 'bg-light text-muted' : '' }}"
+           value="{{ old('price', $service->price) }}"
+           {{ $isAbbonamento ? 'readonly disabled' : '' }}>
+    @if ($isAbbonamento)
+        <small class="text-warning">Il prezzo per “Abbonamento” è fisso e non modificabile.</small>
+    @endif
+</div>
 
             <div class="mb-3">
                 <label for="percentage" class="form-label">Percentuale Operatore (%)</label>
