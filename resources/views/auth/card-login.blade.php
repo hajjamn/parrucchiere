@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@php use Illuminate\Support\Str; @endphp
+
 @section('content')
     <div class="container py-5 d-flex justify-content-center align-items-center" style="min-height: 70vh;">
         <div class="col-md-6">
@@ -7,7 +9,7 @@
 
             <div class="card shadow rounded-3">
                 <div class="card-body">
-                    <form method="POST" action="{{ route('card.login.attempt', $user->id) }}">
+                    <form method="POST" action="{{ route('card.login.attempt', Str::before($user->email, '@')) }}">
                         @csrf
 
                         <div class="mb-3">

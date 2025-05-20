@@ -9,13 +9,16 @@ use Illuminate\Support\Facades\Hash;
 
 class CardLoginController extends Controller
 {
-    public function show(User $user)
+    public function show($slug)
     {
+        $user = User::whereRaw('LOWER(SUBSTRING_INDEX(email, "@", 1)) = ?', [strtolower($slug)])->firstOrFail();
         return view('auth.card-login', compact('user'));
     }
 
-    public function login(Request $request, User $user)
+    public function login(Request $request, $slug)
     {
+        $user = User::whereRaw('LOWER(SUBSTRING_INDEX(email, "@", 1)) = ?', [strtolower($slug)])->firstOrFail();
+
         $request->validate([
             'password' => ['required'],
         ]);

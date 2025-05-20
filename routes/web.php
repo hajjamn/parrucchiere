@@ -20,8 +20,9 @@ Route::prefix('dreamscenter')->group(function () {
         return view('auth.login');
     });
 
-    Route::get('/card-login/{user}', [CardLoginController::class, 'show'])->name('card.login.form');
-    Route::post('/card-login/{user}', [CardLoginController::class, 'login'])->name('card.login.attempt');
+    Route::get('/card-login/{slug}', [CardLoginController::class, 'show'])->name('card.login.form');
+    Route::post('/card-login/{slug}', [CardLoginController::class, 'login'])->name('card.login.attempt');
+
 
     Route::middleware(['auth', 'verified'])
         ->name('admin.')
