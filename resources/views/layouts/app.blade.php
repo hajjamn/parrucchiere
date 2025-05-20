@@ -36,10 +36,10 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <div class="">
-                    <a class="nav-link" href="{{ route('admin.service-logs.index') }}">
+                    {{-- <a class="nav-link" href="{{ route('admin.service-logs.index') }}"> --}}
 
                         <img src="{{ asset('images/favicon.png') }}" alt="Logo" style="height: 40px;">
-                    </a>
+                        {{-- </a> --}}
 
                 </div>
                 {{-- config('app.name', 'Laravel') --}}
