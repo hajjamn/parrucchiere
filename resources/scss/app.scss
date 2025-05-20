@@ -123,3 +123,20 @@ body::before {
   z-index: 2000 !important;
   position:relative;
 }
+
+// Navbar font size for larger screens (tablet and up)
+@media (min-width: 768px) {
+  .navbar-nav .nav-link {
+    font-size: 1.15rem; // roughly 18.4px
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .navbar-brand img {
+    height: 48px;
+  }
+
+  .dropdown-menu a {
+    font-size: 1rem;
+  }
+}

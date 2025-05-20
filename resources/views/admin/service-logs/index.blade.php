@@ -124,25 +124,30 @@
                                 @foreach ($serviceLogs as $log)
                                     <tr>
                                         @if (auth()->user()->role === 'admin')
-                                            <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
+                                            <td class="align-middle">{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
                                         @endif
-                                        <td>{{ $log->service->name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($log->performed_at)->format('H:i') }}</td>
-                                        <td>€{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }}</td>
-                                        <td>{{ $log->service->percentage }}%</td>
-                                        <td>€{{ number_format(($log->custom_price ?? $log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}
+                                        <td class="align-middle">{{ $log->service->name }}</td>
+                                        <td class="align-middle">{{ \Carbon\Carbon::parse($log->performed_at)->format('H:i') }}</td>
+                                        <td class="align-middle">
+                                            €{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }}</td>
+                                        <td class="align-middle">{{ $log->service->percentage }}%</td>
+                                        <td class="align-middle">
+                                            €{{ number_format(($log->custom_price ?? $log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}
                                         </td>
                                         <td class="text-center">
-                                            <a href="{{ route('admin.service-logs.edit', $log->id) }}"
-                                                class="btn btn-sm btn-outline-primary me-1">Modifica</a>
-                                            <form action="{{ route('admin.service-logs.destroy', $log->id) }}" method="POST"
-                                                class="d-inline-block"
-                                                onsubmit="return confirm('Sei sicuro di voler eliminare questa prestazione?')">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger">Elimina</button>
-                                            </form>
+                                            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                                <a href="{{ route('admin.service-logs.edit', $log->id) }}"
+                                                    class="btn btn-sm btn-outline-primary">Modifica</a>
+
+                                                <form action="{{ route('admin.service-logs.destroy', $log->id) }}" method="POST"
+                                                    onsubmit="return confirm('Sei sicuro di voler eliminare questa prestazione?')">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Elimina</button>
+                                                </form>
+                                            </div>
                                         </td>
+
                                     </tr>
                                 @endforeach
                             </tbody>

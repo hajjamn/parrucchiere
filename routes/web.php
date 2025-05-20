@@ -6,6 +6,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\ServiceLogController;
+use App\Http\Controllers\CardLoginController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -18,6 +19,9 @@ Route::prefix('dreamscenter')->group(function () {
 
         return view('auth.login');
     });
+
+    Route::get('/card-login/{user}', [CardLoginController::class, 'show'])->name('card.login.form');
+    Route::post('/card-login/{user}', [CardLoginController::class, 'login'])->name('card.login.attempt');
 
     Route::middleware(['auth', 'verified'])
         ->name('admin.')
