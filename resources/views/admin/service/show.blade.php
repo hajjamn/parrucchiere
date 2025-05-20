@@ -15,6 +15,62 @@
             </div>
         </div>
 
+        {{-- Date Filter --}}
+        <form method="GET" action="{{ route('admin.services.show', $service->id) }}" class="d-flex gap-2 flex-wrap mb-4">
+            <div>
+                <label for="start_date" class="form-label text-white">Data Inizio</label>
+                <input type="date" name="start_date" id="start_date" class="form-control"
+                    value="{{ $startDate->toDateString() }}">
+            </div>
+            <div>
+                <label for="end_date" class="form-label text-white">Data Fine</label>
+                <input type="date" name="end_date" id="end_date" class="form-control"
+                    value="{{ $endDate->toDateString() }}">
+            </div>
+            <div class="d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary">Filtra</button>
+                <a href="{{ route('admin.services.show', $service->id) }}" class="btn btn-secondary">Reset</a>
+            </div>
+        </form>
+
+        <div class="alert alert-success">
+            Totale incassato per questo servizio: <strong>€{{ number_format($totalRevenue, 2, ',', '.') }}</strong>
+        </div>
+
+        @if (!empty($revenueOverTime) && $revenueOverTime->isNotEmpty())
+            <div class="card mb-4">
+                <div class="card-body">
+                    <canvas id="revenueChart" class="w-100" style="min-height: 300px;"></canvas>
+
+                </div>
+            </div>
+
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                const ctx = document.getElementById('revenueChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: {!! json_encode($revenueOverTime->keys()) !!},
+                        datasets: [{
+                            label: 'Incasso Giornaliero (€)',
+                            data: {!! json_encode($revenueOverTime->values()) !!},
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            </script>
+        @endif
+
         <h5 class="text-white">Prestazioni con questo servizio</h5>
 
         @if ($service->serviceLogs->isEmpty())
