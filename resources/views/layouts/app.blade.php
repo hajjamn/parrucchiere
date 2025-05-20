@@ -35,9 +35,12 @@
 
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+                <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.service-logs.index') }}">
+
                     <div class="">
-                        <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+                        <a class="navbar-brand d-flex align-items-center"
+                            href="{{ route('admin.service-logs.index') }}">
+
                             <img src="{{ asset('images/favicon.png') }}" alt="Logo" style="height: 40px;">
                         </a>
 
