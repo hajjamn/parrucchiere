@@ -48,7 +48,40 @@ class UserController extends Controller
             return ($price * $log->service->percentage) / 100;
         });
 
-        return view('admin.users.show', compact('user', 'startDate', 'endDate', 'totalCommission'));
+        // Group commission by day
+        $commissionOverTime = $user->serviceLogs
+            ->groupBy(fn($log) => \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d'))
+            ->map(fn($logs) => $logs->sum(function ($log) {
+                $price = $log->custom_price ?? $log->service->price ?? 0;
+                return ($price * $log->service->percentage) / 100;
+            }));
+
+        // Count of services by service name
+        $servicesCount = $user->serviceLogs
+            ->groupBy('service.name')
+            ->map(fn($logs) => $logs->count());
+
+        $commissionByService = $user->serviceLogs
+            ->groupBy('service.name')
+            ->map(function ($logs) {
+                return $logs->sum(function ($log) {
+                    $price = $log->custom_price ?? $log->service->price ?? 0;
+                    return ($price * $log->service->percentage) / 100;
+                });
+            });
+
+
+
+        return view('admin.users.show', compact(
+            'user',
+            'startDate',
+            'endDate',
+            'totalCommission',
+            'commissionOverTime',
+            'servicesCount',
+            'commissionByService'
+        ));
+
     }
 
 

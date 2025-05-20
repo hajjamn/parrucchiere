@@ -16,6 +16,7 @@ return new class extends Migration {
             $table->foreignId('client_id')->constrained('clients')->onDelete('cascade');
             $table->foreignId('service_id')->constrained('services')->onDelete('cascade');
             $table->decimal('custom_price', 8, 2)->nullable();
+            $table->text('notes')->nullable();
             $table->timestamp('performed_at');
             $table->timestamps();
         });

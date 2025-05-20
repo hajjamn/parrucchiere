@@ -34,14 +34,59 @@ class ServiceLogController extends Controller
 
         $logs = $query->get()
             ->groupBy(function ($log) {
-                return \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d');
+                return Carbon::parse($log->performed_at)->format('Y-m-d');
             })
             ->map(function ($logsForDate) {
                 return $logsForDate->groupBy('client_id');
             })
             ->sortKeysDesc();
 
-        return view('admin.service-logs.index', compact('logs', 'selectedDate'));
+        $abbonamentoZeroLogs = collect();
+
+        if ($user->role === 'admin') {
+            $abbonamentoZeroLogs = ServiceLog::with(['client', 'service', 'user'])
+                ->whereDate('performed_at', $selectedDate)
+                ->whereHas('service', function ($query) {
+                    $query->whereRaw('LOWER(name) = ?', ['abbonamento']);
+                })
+                ->where(function ($query) {
+                    $query->whereNull('custom_price')->orWhere('custom_price', 0);
+                })
+                ->get();
+        }
+
+        // 🎂 Compleanni (da usare nella view)
+        $clients = Client::all();
+        $today = Carbon::today();
+        $startOfWeek = $today->copy()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = $today->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $birthdayClientsToday = $clients->filter(function ($client) use ($today) {
+            return $client->birth_date &&
+                Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)))
+                    ->isSameDay($today);
+        });
+
+        $birthdayClientsWeek = $clients
+            ->filter(function ($client) use ($startOfWeek, $endOfWeek, $today) {
+                if (!$client->birth_date)
+                    return false;
+
+                $birthdayThisYear = Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)));
+
+                return $birthdayThisYear->isBetween($startOfWeek, $endOfWeek) && !$birthdayThisYear->isSameDay($today);
+            })
+            ->sortBy(function ($client) use ($today) {
+                return Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)));
+            });
+
+        return view('admin.service-logs.index', compact(
+            'logs',
+            'selectedDate',
+            'abbonamentoZeroLogs',
+            'birthdayClientsToday',
+            'birthdayClientsWeek'
+        ));
     }
 
     /**
@@ -62,14 +107,24 @@ class ServiceLogController extends Controller
     public function store(ServiceLogStoreRequest $request)
     {
         $customPrices = $request->input('custom_prices', []);
+        $isAdmin = auth()->user()->role === 'admin';
 
         foreach ($request->service_ids as $serviceId) {
+            $service = Service::find($serviceId);
+
+            $customPrice = $customPrices[$serviceId] ?? null;
+
+            // Block custom price input for "Abbonamento" if not admin
+            if (!$isAdmin && strtolower($service->name) === 'abbonamento') {
+                $customPrice = 0;
+            }
+
             ServiceLog::create([
                 'user_id' => Auth::id(),
                 'client_id' => $request->client_id,
                 'service_id' => $serviceId,
                 'performed_at' => $request->performed_at,
-                'custom_price' => $customPrices[$serviceId] ?? null,
+                'custom_price' => $customPrice,
             ]);
         }
 
@@ -104,16 +159,21 @@ class ServiceLogController extends Controller
     {
         $this->authorizeUserOrAdmin($serviceLog);
 
-        $serviceLog->update([
-            'client_id' => $request->client_id,
-            'service_id' => $request->service_id,
-            'performed_at' => $request->performed_at,
-            'custom_price' => $request->custom_price,
-        ]);
+        $data = $request->validated();
+
+        // Prevent custom_price update if user is NOT admin and service is "Abbonamento"
+        $isAdmin = auth()->user()->role === 'admin';
+        $service = Service::find($data['service_id']);
+
+        if (!$isAdmin && strtolower($service?->name ?? '') === 'abbonamento') {
+            unset($data['custom_price']); // Prevent overwrite
+        }
+
+        $serviceLog->update($data);
 
         return redirect()->route('admin.service-logs.index')->with('success', 'Prestazione aggiornata con successo.');
-
     }
+
 
     /**
      * Remove the specified resource from storage.

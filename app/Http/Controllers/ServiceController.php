@@ -16,9 +16,31 @@ class ServiceController extends Controller
     public function show(Service $service)
     {
         $this->authorizeAdmin();
-        $service->load(['serviceLogs.client', 'serviceLogs.user']);
-        return view('admin.service.show', compact('service'));
+
+        $startDate = request('start_date') ? \Carbon\Carbon::parse(request('start_date')) : now()->startOfMonth();
+        $endDate = request('end_date') ? \Carbon\Carbon::parse(request('end_date')) : now()->endOfMonth();
+
+        $service->load([
+            'serviceLogs' => function ($query) use ($startDate, $endDate) {
+                $query->with(['client', 'user'])
+                    ->whereBetween('performed_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+                    ->orderByDesc('performed_at');
+            }
+        ]);
+
+        $totalRevenue = $service->serviceLogs->sum(function ($log) {
+            return $log->custom_price ?? $log->service->price ?? 0;
+        });
+
+        $revenueOverTime = $service->serviceLogs
+            ->groupBy(fn($log) => \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d'))
+            ->map(fn($logs) => $logs->sum(function ($log) {
+                return $log->custom_price ?? $log->service->price ?? 0;
+            }));
+
+        return view('admin.service.show', compact('service', 'startDate', 'endDate', 'totalRevenue', 'revenueOverTime'));
     }
+
 
 
     public function create()
@@ -58,10 +80,16 @@ class ServiceController extends Controller
             'percentage' => 'required|numeric|min:0|max:100',
         ]);
 
+        // Prevent updating price if the service is "Abbonamento"
+        if (strtolower($service->name) === 'abbonamento') {
+            unset($validated['price']); // Strip price if someone tries to submit it anyway
+        }
+
         $service->update($validated);
 
         return redirect()->route('admin.services.index')->with('success', 'Servizio modificato con successo.');
     }
+
 
     public function destroy(Service $service)
     {

@@ -14,7 +14,12 @@ class ServiceLog extends Model
         'client_id',
         'service_id',
         'custom_price',
-        'performed_at'
+        'performed_at',
+        'notes'
+    ];
+
+    protected $casts = [
+        'performed_at' => 'datetime',
     ];
 
     public function user()

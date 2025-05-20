@@ -179,6 +179,11 @@ class ServiceSeeder extends Seeder
                 'name' => 'Pacchetto Comunione',
                 'price' => 150,
             ],
+            [
+                'name' => 'Abbonamento',
+                'price' => null,
+                'is_variable_price' => true,
+            ],
         ];
 
         foreach ($services as $service) {
