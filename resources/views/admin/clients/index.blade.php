@@ -14,7 +14,6 @@
             <a href="{{ route('admin.clients.create') }}" class="btn btn-success">+ Aggiungi Cliente</a>
         </div>
 
-
         @if (session('success'))
             <div class="alert alert-success">{{ session('success') }}</div>
         @endif
@@ -22,52 +21,56 @@
         @if ($clients->isEmpty())
             <div class="alert alert-info">Nessun cliente trovato.</div>
         @else
-            <table class="table table-bordered">
-                <thead>
-                    <tr>
-                        <th>Cognome</th>
-                        <th>Nome</th>
-                        @if(auth()->user()->role === 'admin')
-                            <th>Email</th>
-                            <th>Telefono</th>
-                        @endif
-                        <th>Data di nascita</th>
-                        <th class="text-center">Azioni</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($clients as $client)
+            <div class="table-responsive">
+                <table
+                    class="table table-bordered align-middle text-center w-100 {{ auth()->user()->role === 'admin' ? 'table-admin' : '' }}">
+                    <thead>
                         <tr>
-                            <td>{{ $client->last_name }}</td>
-                            <td>{{ $client->first_name }}</td>
+                            <th class="align-middle">Cognome</th>
+                            <th class="align-middle">Nome</th>
                             @if(auth()->user()->role === 'admin')
-                                <td>{{ $client->email }}</td>
-                                <td>{{ $client->phone }}</td>
+                                <th class="align-middle">Email</th>
+                                <th class="align-middle">Telefono</th>
                             @endif
-                            <td>
-                                {{ $client->birth_date ? \Carbon\Carbon::parse($client->birth_date)->format('d/m/Y') : '—' }}
-                            </td>
-                            <td class="text-center">
-                                <a href="{{ route('admin.clients.show', $client) }}" class="btn btn-sm btn-outline-secondary me-1">
-                                    Dettagli
-                                </a>
-
-                                @if (auth()->user()->role === 'admin')
-                                    <a href="{{ route('admin.clients.edit', $client) }}"
-                                        class="btn btn-sm btn-outline-primary me-1">Modifica</a>
-
-                                    <form action="{{ route('admin.clients.destroy', $client) }}" method="POST" class="d-inline"
-                                        onsubmit="return confirm('Sei sicuro di voler eliminare questo cliente?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">Elimina</button>
-                                    </form>
-                                @endif
-                            </td>
+                            <th class="align-middle">Data di nascita</th>
+                            <th class="text-center align-middle">Azioni</th>
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($clients as $client)
+                            <tr>
+                                <td class="align-middle">{{ $client->last_name }}</td>
+                                <td class="align-middle">{{ $client->first_name }}</td>
+                                @if(auth()->user()->role === 'admin')
+                                    <td class="align-middle" title="{{ $client->email }}">{{ $client->email }}</td>
+                                    <td class="align-middle" title="{{ $client->phone }}">{{ $client->phone }}</td>
+                                @endif
+                                <td class="align-middle">
+                                    {{ $client->birth_date ? \Carbon\Carbon::parse($client->birth_date)->format('d/m/Y') : '—' }}
+                                </td>
+                                <td class="text-center align-middle">
+                                    <div class="d-flex justify-content-center gap-2 flex-wrap">
+                                        <a href="{{ route('admin.clients.show', $client) }}"
+                                            class="btn btn-sm btn-outline-secondary">Dettagli</a>
+
+                                        @if (auth()->user()->role === 'admin')
+                                            <a href="{{ route('admin.clients.edit', $client) }}"
+                                                class="btn btn-sm btn-outline-primary">Modifica</a>
+
+                                            <form action="{{ route('admin.clients.destroy', $client) }}" method="POST"
+                                                onsubmit="return confirm('Sei sicuro di voler eliminare questo cliente?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="btn btn-sm btn-outline-danger">Elimina</button>
+                                            </form>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
     </div>
 @endsection
