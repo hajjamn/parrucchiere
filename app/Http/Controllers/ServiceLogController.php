@@ -34,14 +34,59 @@ class ServiceLogController extends Controller
 
         $logs = $query->get()
             ->groupBy(function ($log) {
-                return \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d');
+                return Carbon::parse($log->performed_at)->format('Y-m-d');
             })
             ->map(function ($logsForDate) {
                 return $logsForDate->groupBy('client_id');
             })
             ->sortKeysDesc();
 
-        return view('admin.service-logs.index', compact('logs', 'selectedDate'));
+        $abbonamentoZeroLogs = collect();
+
+        if ($user->role === 'admin') {
+            $abbonamentoZeroLogs = ServiceLog::with(['client', 'service', 'user'])
+                ->whereDate('performed_at', $selectedDate)
+                ->whereHas('service', function ($query) {
+                    $query->whereRaw('LOWER(name) = ?', ['abbonamento']);
+                })
+                ->where(function ($query) {
+                    $query->whereNull('custom_price')->orWhere('custom_price', 0);
+                })
+                ->get();
+        }
+
+        // 🎂 Compleanni (da usare nella view)
+        $clients = Client::all();
+        $today = Carbon::today();
+        $startOfWeek = $today->copy()->startOfWeek(Carbon::MONDAY);
+        $endOfWeek = $today->copy()->endOfWeek(Carbon::SUNDAY);
+
+        $birthdayClientsToday = $clients->filter(function ($client) use ($today) {
+            return $client->birth_date &&
+                Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)))
+                    ->isSameDay($today);
+        });
+
+        $birthdayClientsWeek = $clients
+            ->filter(function ($client) use ($startOfWeek, $endOfWeek, $today) {
+                if (!$client->birth_date)
+                    return false;
+
+                $birthdayThisYear = Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)));
+
+                return $birthdayThisYear->isBetween($startOfWeek, $endOfWeek) && !$birthdayThisYear->isSameDay($today);
+            })
+            ->sortBy(function ($client) use ($today) {
+                return Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)));
+            });
+
+        return view('admin.service-logs.index', compact(
+            'logs',
+            'selectedDate',
+            'abbonamentoZeroLogs',
+            'birthdayClientsToday',
+            'birthdayClientsWeek'
+        ));
     }
 
     /**

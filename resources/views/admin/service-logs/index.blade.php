@@ -6,11 +6,15 @@
             use Illuminate\Support\Carbon;
 
             $today = Carbon::today();
-            $startOfWeek = $today->copy()->startOfWeek(Carbon::MONDAY);
+            $startOfWeek = $today->copy()->startOfWeek(weekStartsAt: Carbon::MONDAY);
             $endOfWeek = $today->copy()->endOfWeek(Carbon::SUNDAY);
+
+
 
             // Preparo i compleanni mappando la birth_date nell'anno corrente
             $clients = \App\Models\Client::all();
+
+
 
             // Compleanni di oggi
             $birthdayClientsToday = $clients->filter(function ($client) use ($today) {
@@ -20,16 +24,38 @@
             });
 
             // Compleanni di questa settimana (escludendo oggi)
-            $birthdayClientsWeek = $clients->filter(function ($client) use ($startOfWeek, $endOfWeek, $today) {
-                if (!$client->birth_date)
-                    return false;
+            $birthdayClientsWeek = $clients
+        ->filter(function ($client) use ($startOfWeek, $endOfWeek, $today) {
+            if (!$client->birth_date) return false;
 
-                $birthdayThisYear = Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)));
+            $birthdayThisYear = Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)));
 
-                return $birthdayThisYear->isBetween($startOfWeek, $endOfWeek) && !$birthdayThisYear->isSameDay($today);
-            });
+            return $birthdayThisYear->isBetween($startOfWeek, $endOfWeek) && !$birthdayThisYear->isSameDay($today);
+        })
+        ->sortBy(function ($client) use ($today) {
+            return Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)));
+        })
+        ->groupBy(function ($client) use ($today) {
+            return Carbon::createFromFormat('Y-m-d', $today->year . '-' . date('m-d', strtotime($client->birth_date)))
+                ->translatedFormat('l'); // Day name like 'Lunedì'
+        });
         @endphp
 
+        @if ($abbonamentoZeroLogs->isNotEmpty())
+            <div class="alert alert-danger">
+                <strong>⚠️ Attenzione:</strong> Ci sono delle prestazioni con <strong>Abbonamento</strong> a prezzo 0.
+                <ul class="mb-0 mt-2">
+                    @foreach ($abbonamentoZeroLogs as $log)
+                        <li>
+                            <a href="{{ route('admin.service-logs.edit', $log->id) }}" class="text-white text-decoration-underline">
+                                {{ $log->performed_at->format('d/m/Y H:i') }} – {{ $log->client->first_name }}
+                                {{ $log->client->last_name }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
 
         @if ($birthdayClientsToday->isNotEmpty())
@@ -48,23 +74,24 @@
         @endif
 
         @if ($birthdayClientsWeek->isNotEmpty())
-            <div class="alert alert-warning">
-                <h5 class="mb-2">📅 Compleanni di questa settimana:</h5>
-                <ul class="mb-0">
-                    @foreach ($birthdayClientsWeek as $client)
-                        @php
-                            $birthdayThisYear = Carbon::createFromFormat('Y-m-d', now()->year . '-' . date('m-d', strtotime($client->birth_date)));
-                        @endphp
+    <div class="alert alert-warning">
+        <h5 class="mb-2">📅 Compleanni di questa settimana:</h5>
+        <ul class="mb-0">
+            @foreach ($birthdayClientsWeek as $day => $clientsForDay)
+                <li class="fw-bold">{{ ucfirst($day) }}:</li>
+                <ul class="mb-2">
+                    @foreach ($clientsForDay as $client)
                         <li>
                             <a href="{{ route('admin.clients.show', $client->id) }}">
                                 {{ $client->first_name }} {{ $client->last_name }}
                             </a>
-                            — {{ ucwords($birthdayThisYear->translatedFormat('l d F')) }}
                         </li>
                     @endforeach
                 </ul>
-            </div>
-        @endif
+            @endforeach
+        </ul>
+    </div>
+@endif
 
         <h1 class="mb-4 text-white">Storico Prestazioni</h1>
 
@@ -122,7 +149,12 @@
                             </thead>
                             <tbody>
                                 @foreach ($serviceLogs as $log)
-                                    <tr>
+
+                                @php
+    $isAbbonamentoZero = strtolower($log->service->name) === 'abbonamento' && ($log->custom_price ?? 0) == 0;
+@endphp
+
+<tr @if(auth()->user()->role === 'admin' && $isAbbonamentoZero) class="table-danger" @endif>
                                         @if (auth()->user()->role === 'admin')
                                             <td class="align-middle">{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
                                         @endif

@@ -18,6 +18,10 @@ class ServiceLog extends Model
         'notes'
     ];
 
+    protected $casts = [
+        'performed_at' => 'datetime',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
