@@ -9,8 +9,10 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                <p><strong>Email:</strong> {{ $client->email ?? 'Non disponibile' }}</p>
-                <p><strong>Telefono:</strong> {{ $client->phone }}</p>
+                @if(auth()->user()->role === 'admin')
+                    <p><strong>Email:</strong> {{ $client->email ?? 'Non disponibile' }}</p>
+                    <p><strong>Telefono:</strong> {{ $client->phone }}</p>
+                @endif
                 <p><strong>Data di nascita:</strong>
                     {{ $client->birth_date ? \Carbon\Carbon::parse($client->birth_date)->format('d/m/Y') : 'Non disponibile' }}
                 </p>
