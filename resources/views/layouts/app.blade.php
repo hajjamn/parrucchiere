@@ -35,18 +35,14 @@
 
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <a class="navbar-brand d-flex align-items-center" href="{{ route('admin.service-logs.index') }}">
+                <div class="">
+                    <a class="nav-link" href="{{ route('admin.service-logs.index') }}">
 
-                    <div class="">
-                        <a class="navbar-brand d-flex align-items-center"
-                            href="{{ route('admin.service-logs.index') }}">
+                        <img src="{{ asset('images/favicon.png') }}" alt="Logo" style="height: 40px;">
+                    </a>
 
-                            <img src="{{ asset('images/favicon.png') }}" alt="Logo" style="height: 40px;">
-                        </a>
-
-                    </div>
-                    {{-- config('app.name', 'Laravel') --}}
-                </a>
+                </div>
+                {{-- config('app.name', 'Laravel') --}}
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
