@@ -42,6 +42,9 @@ Route::prefix('dreamscenter')->group(function () {
                 Route::get('/', 'index')->name('index');
                 Route::post('/', 'switch')->name('switch');
             });
+
+            Route::get('/riepilogo', [\App\Http\Controllers\SummaryController::class, 'index'])->name('summary.index');
+
         });
 
     Route::middleware('auth')->group(function () {

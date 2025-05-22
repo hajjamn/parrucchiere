@@ -78,7 +78,15 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admin.clients.index') }}">Clienti</a>
                             </li>
+
                         @endauth
+
+                        @if (auth()->user()->role === 'admin')
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.summary.index') }}">Riepilogo</a>
+                            </li>
+                        @endif
+
                     </ul>
 
                     <!-- Right Side Of Navbar -->
