@@ -140,10 +140,10 @@
                                         <th>Operatore</th>
                                     @endif
                                     <th>Servizio</th>
-                                    <th>Data</th>
+                                    <th>Ora</th>
                                     <th>Prezzo</th>
                                     <th>Percentuale</th>
-                                    <th>Totale</th>
+                                    <th>Commissione</th>
                                     <th class="text-center">Azioni</th>
                                 </tr>
                             </thead>
