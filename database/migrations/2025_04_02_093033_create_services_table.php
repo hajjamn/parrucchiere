@@ -17,6 +17,7 @@ return new class extends Migration {
             $table->decimal('percentage', 5, 2);
             $table->boolean('is_variable_price')->default(false);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
