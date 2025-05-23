@@ -155,7 +155,6 @@ class ServiceSeeder extends Seeder
             [
                 'name' => 'Extensions',
                 'price' => 3,
-                'is_variable_price' => true,
             ],
             [
                 'name' => 'Vendita',

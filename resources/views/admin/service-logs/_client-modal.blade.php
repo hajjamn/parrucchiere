@@ -35,11 +35,11 @@
                     <input type="email" name="email" class="form-control" value="{{ old('email') }}">
                 </div>
                 <div class="mb-3">
-                    <label for="phone" class="form-label">Telefono</label>
-                    <input type="text" name="phone" class="form-control" value="{{ old('phone') }}" required>
+                    <label for="phone" class="form-label">Telefono (opzionale)</label>
+                    <input type="text" name="phone" class="form-control" value="{{ old('phone') }}">
                 </div>
                 <div class="mb-3">
-                    <label for="birth_date" class="form-label">Data di nascita</label>
+                    <label for="birth_date" class="form-label">Data di nascita (opzionale)</label>
                     <input type="date" name="birth_date" class="form-control" value="{{ old('birth_date') }}">
                 </div>
             </div>

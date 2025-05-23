@@ -28,6 +28,8 @@ class ServiceLogStoreRequest extends FormRequest
             'performed_at' => 'required|date',
             'custom_prices' => 'nullable|array',
             'custom_prices.*' => 'nullable|numeric|min:0',
+            'quantities' => 'nullable|array',
+            'quantities.*' => 'nullable|integer|min:0',
         ];
     }
 }

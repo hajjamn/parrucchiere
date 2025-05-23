@@ -25,7 +25,7 @@ class ClientStoreRequest extends FormRequest
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'email' => 'nullable|email|max:255|unique:clients,email',
-            'phone' => 'required|string|max:20',
+            'phone' => 'nullable|string|max:20',
             'birth_date' => 'nullable|date|before_or_equal:today'
         ];
     }
@@ -36,7 +36,6 @@ class ClientStoreRequest extends FormRequest
             'first_name.required' => 'Il nome è obbligatorio.',
             'last_name.required' => 'Il cognome è obbligatorio.',
             'email.unique' => 'Questa email è già stata utilizzata.',
-            'phone.required' => 'Il numero di telefono è obbligatorio.',
             'birth_date.before_or_equal' => 'La data di nascita non può essere nel futuro.',
         ];
     }

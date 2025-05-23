@@ -79,13 +79,15 @@
                                 <a class="nav-link" href="{{ route('admin.clients.index') }}">Clienti</a>
                             </li>
 
+                            @if (auth()->user()->role === 'admin')
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.summary.index') }}">Riepilogo</a>
+                                </li>
+                            @endif
+
                         @endauth
 
-                        @if (auth()->user()->role === 'admin')
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('admin.summary.index') }}">Riepilogo</a>
-                            </li>
-                        @endif
+
 
                     </ul>
 

@@ -1,9 +1,5 @@
 @extends('layouts.app')
 
-{{-- AGGIUSTA LE EXTENSION CHE PRENDONO DIRETTAMENTE IL CUSTOM --}}
-
-{{-- TOKEN CON LA MAIL PER IL CONSENSO DELLA PRIVACY --}}
-
 @section('content')
 <div class="container py-4">
     <h1 class="mb-4 text-white">Registra una nuova prestazione</h1>
@@ -22,7 +18,7 @@
     <form action="{{ route('admin.service-logs.store') }}" method="POST">
         @csrf
 
-        {{-- BLOCCO CLIENTE --}}
+        {{-- CLIENTE --}}
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <span>Seleziona Cliente</span>
@@ -42,7 +38,7 @@
             </div>
         </div>
 
-        {{-- BLOCCO SERVIZI --}}
+        {{-- SERVIZI --}}
         <div class="card mb-4">
             <div class="card-header">Servizi Erogati</div>
             <div class="card-body">
@@ -50,7 +46,7 @@
                     @foreach ($services as $service)
                         @php
                             $isAbbonamento = str_contains(strtolower($service->name), 'abbonamento');
-
+                            $isExtension = strtolower($service->name) === 'extensions';
                             $isAdmin = auth()->user()->role === 'admin';
                         @endphp
                         <div class="col-md-6 col-lg-4 mb-3">
@@ -60,27 +56,30 @@
                                     id="service_{{ $service->id }}"
                                     {{ in_array($service->id, old('service_ids', [])) ? 'checked' : '' }}>
                                 <label class="form-check-label" for="service_{{ $service->id }}">
-                                    {{ $service->name }} ({{ $service->price ? '€' . number_format($service->price, 2, ',', '.') : 'Prezzo da definire' }})
+                                    {{ $service->name }} 
+                                    ({{ $service->price ? '€' . number_format($service->price, 2, ',', '.') : 'Prezzo da definire' }})
                                 </label>
                             </div>
 
-                            @if ($service->is_variable_price)
+                            @if ($isExtension || $service->is_variable_price)
                                 <div class="mt-1">
                                     <input
-    type="number"
-    class="form-control form-control-sm variable-price"
-    data-related-checkbox="service_{{ $service->id }}"
-    name="custom_prices[{{ $service->id }}]"
-    placeholder="{{ $service->name === 'Extensions' ? 'Numero di ciocche' : 'Prezzo del prodotto' }}"
-    value="{{ old('custom_prices.' . $service->id, (!$isAdmin && $isAbbonamento) ? 0 : '') }}"
-    style="display: none;"
-    min="0"
-    step="{{ $service->name === 'Extensions' ? '1' : '0.01' }}"
-    @if (!$isAdmin && $isAbbonamento) disabled readonly @endif
->
+                                        type="number"
+                                        class="form-control form-control-sm variable-price"
+                                        data-related-checkbox="service_{{ $service->id }}"
+                                        name="custom_prices[{{ $service->id }}]"
+                                        placeholder="{{ $isExtension ? 'Numero di ciocche' : 'Prezzo del prodotto' }}"
+                                        value="{{ old('custom_prices.' . $service->id, (!$isAdmin && $isAbbonamento) ? 0 : '') }}"
+                                        style="display: none;"
+                                        min="0"
+                                        step="{{ $isExtension ? '1' : '0.01' }}"
+                                        @if (!$isAdmin && $isAbbonamento) disabled readonly @endif
+                                    >
 
                                     @if (!$isAdmin && $isAbbonamento)
-                                        <small class="text-muted d-block">Il prezzo per questo servizio è fisso e non modificabile.</small>
+                                        <small class="text-muted d-block">
+                                            Il prezzo per questo servizio è fisso e non modificabile.
+                                        </small>
                                     @endif
                                 </div>
                             @endif
@@ -90,12 +89,12 @@
             </div>
         </div>
 
-        {{-- BLOCCO DATA --}}
+        {{-- DATA --}}
         <div class="card mb-4">
             <div class="card-header">Data e Ora della Prestazione</div>
             <div class="card-body">
                 <input type="datetime-local" name="performed_at" id="performed_at" class="form-control"
-                    value="{{ old('performed_at') ?? now()->format('Y-m-d\TH:i') }}" required>
+                    value="{{ old('performed_at', now()->format('Y-m-d\TH:i')) }}" required>
             </div>
         </div>
 
@@ -108,60 +107,46 @@
 
 {{-- MODAL CLIENTE --}}
 @include('admin.service-logs._client-modal')
-
 @endsection
-
 
 @push('scripts')
 <script>
     const IS_ADMIN = @json(auth()->user()->role === 'admin');
-</script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            $('#client_id').select2({
-                placeholder: 'Cerca un cliente...',
-                width: '100%',
-                language: 'it'
+    document.addEventListener('DOMContentLoaded', function () {
+        $('#client_id').select2({
+            placeholder: 'Cerca un cliente...',
+            width: '100%',
+            language: 'it'
+        });
+
+        document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const id = this.id;
+                const relatedInputs = document.querySelectorAll(`.variable-price[data-related-checkbox="${id}"]`);
+
+                relatedInputs.forEach(input => {
+                    input.style.display = this.checked ? 'block' : 'none';
+                    if (!this.checked) {
+                        input.value = '';
+                    }
+                });
             });
 
-            // Mostra input custom_price solo se il checkbox è selezionato
-            document.querySelectorAll('.service-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', function () {
-        const id = this.id;
-        const relatedInputs = document.querySelectorAll(`.variable-price[data-related-checkbox="${id}"]`);
-
-        relatedInputs.forEach(input => {
-            // Show the input if checkbox is checked, hide if not
-            input.style.display = this.checked ? 'block' : 'none';
-
-            // Optionally clear the value when hidden
-            if (!this.checked) {
-                input.value = '';
-            }
+            checkbox.dispatchEvent(new Event('change'));
         });
+
+        @if ($errors->any() && old('_from_modal'))
+            const modal = new bootstrap.Modal(document.getElementById('createClientModal'));
+            modal.show();
+        @endif
+
+        const newClientId = @json(session('new_client_id'));
+        if (newClientId) {
+            $('#client_id').val(newClientId).trigger('change');
+            document.getElementById('client_id').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
     });
-
-    checkbox.dispatchEvent(new Event('change')); // Trigger initial state
-});
-
-
-
-            // Mostra modale se il form modale aveva errori
-            @if ($errors->any() && old('_from_modal'))
-                const modal = new bootstrap.Modal(document.getElementById('createClientModal'));
-                modal.show();
-            @endif
-
-            // Se nuovo cliente è stato creato, preseleziona
-            const newClientId = @json(session('new_client_id'));
-            if (newClientId) {
-                $('#client_id').val(newClientId).trigger('change');
-                document.getElementById('client_id').scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        });
-    </script>
-
-    {{-- Script Select2 in italiano --}}
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/it.js"></script>
+</script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/it.js"></script>
 @endpush

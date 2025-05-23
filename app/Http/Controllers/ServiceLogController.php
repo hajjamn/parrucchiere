@@ -111,12 +111,27 @@ class ServiceLogController extends Controller
 
         foreach ($request->service_ids as $serviceId) {
             $service = Service::find($serviceId);
+            if (!$service)
+                continue;
 
-            $customPrice = $customPrices[$serviceId] ?? null;
+            $customInput = $customPrices[$serviceId] ?? null;
+            $customPrice = null;
+            $quantity = null;
 
-            // Block custom price input for "Abbonamento" if not admin
-            if (!$isAdmin && strtolower($service->name) === 'abbonamento') {
+            // Handle Abbonamento: non-admins get fixed price 0
+            if (strtolower($service->name) === 'abbonamento' && !$isAdmin) {
                 $customPrice = 0;
+            }
+
+            // Handle Extensions via quantity
+            elseif (strtolower($service->name) === 'extensions' && is_numeric($customInput)) {
+                $quantity = (int) $customInput;
+                $customPrice = $quantity * $service->price;
+            }
+
+            // Handle all other custom prices
+            elseif ($service->is_variable_price && is_numeric($customInput)) {
+                $customPrice = $customInput;
             }
 
             ServiceLog::create([
@@ -125,11 +140,14 @@ class ServiceLogController extends Controller
                 'service_id' => $serviceId,
                 'performed_at' => $request->performed_at,
                 'custom_price' => $customPrice,
+                'quantity' => $quantity,
             ]);
         }
 
         return redirect()->route('admin.service-logs.index')->with('success', 'Prestazione registrata con successo.');
     }
+
+
 
     /**
      * Display the specified resource.
@@ -158,21 +176,35 @@ class ServiceLogController extends Controller
     public function update(ServiceLogUpdateRequest $request, ServiceLog $serviceLog)
     {
         $this->authorizeUserOrAdmin($serviceLog);
-
         $data = $request->validated();
 
-        // Prevent custom_price update if user is NOT admin and service is "Abbonamento"
         $isAdmin = auth()->user()->role === 'admin';
         $service = Service::find($data['service_id']);
 
-        if (!$isAdmin && strtolower($service?->name ?? '') === 'abbonamento') {
-            unset($data['custom_price']); // Prevent overwrite
+        if (!$service) {
+            return back()->withErrors(['service_id' => 'Servizio non trovato.']);
+        }
+
+        // Handle Abbonamento restriction
+        if (strtolower($service->name) === 'abbonamento' && !$isAdmin) {
+            unset($data['custom_price']);
+        }
+
+        // Handle quantity-based pricing
+        if (isset($data['quantity']) && is_numeric($data['quantity'])) {
+            $data['custom_price'] = $service->price * (int) $data['quantity'];
+        } elseif (!isset($data['custom_price'])) {
+            // Neither quantity nor custom_price — clear both
+            $data['custom_price'] = null;
+            $data['quantity'] = null;
         }
 
         $serviceLog->update($data);
 
         return redirect()->route('admin.service-logs.index')->with('success', 'Prestazione aggiornata con successo.');
     }
+
+
 
 
     /**

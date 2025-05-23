@@ -26,7 +26,8 @@ class ServiceLogUpdateRequest extends FormRequest
             'service_id' => 'required|exists:services,id',
             'performed_at' => 'required|date|before_or_equal:' . now()->addMinute(),
             'custom_price' => 'nullable|numeric|min:0',
-            'notes' => 'nullable|string'
+            'notes' => 'nullable|string',
+            'quantity' => 'nullable|integer|min:0',
         ];
     }
 }

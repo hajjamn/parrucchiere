@@ -34,8 +34,8 @@
             </div>
 
             <div class="mb-3">
-                <label for="phone" class="form-label">Telefono</label>
-                <input type="text" name="phone" class="form-control" required value="{{ old('phone') }}">
+                <label for="phone" class="form-label">Telefono (opzionale)</label>
+                <input type="text" name="phone" class="form-control" value="{{ old('phone') }}">
             </div>
 
             <div class="mb-3">
