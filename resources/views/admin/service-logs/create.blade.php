@@ -1,8 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container py-4">
-    <h1 class="mb-4 text-white">Registra una nuova prestazione</h1>
+<div class="container py-4 text-white">
+    <h1 class="mb-4">Registra una nuova prestazione</h1>
 
     @if ($errors->any())
         <div class="alert alert-danger">
@@ -43,46 +43,52 @@
             <div class="card-header">Servizi Erogati</div>
             <div class="card-body">
                 <div class="row">
-                    @foreach ($services as $service)
+                    @foreach ($services as $index => $service)
                         @php
-                            $isAbbonamento = str_contains(strtolower($service->name), 'abbonamento');
-                            $isExtension = strtolower($service->name) === 'extensions';
                             $isAdmin = auth()->user()->role === 'admin';
+                            $isAbbonamento = strtolower($service->name) === 'abbonamento';
+                            $hasOld = old("services.$index.id") == $service->id;
                         @endphp
+
                         <div class="col-md-6 col-lg-4 mb-3">
-                            <div class="form-check mb-1">
-                                <input type="checkbox" class="form-check-input service-checkbox"
-                                    name="service_ids[]" value="{{ $service->id }}"
-                                    id="service_{{ $service->id }}"
-                                    {{ in_array($service->id, old('service_ids', [])) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="service_{{ $service->id }}">
-                                    {{ $service->name }} 
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input service-toggle" id="service_{{ $index }}"
+                                    name="services[{{ $index }}][id]"
+                                    value="{{ $service->id }}"
+                                    data-index="{{ $index }}"
+                                    data-uses-quantity="{{ $service->uses_quantity }}"
+                                    data-is-variable="{{ $service->is_variable_price }}"
+                                    data-is-abbonamento="{{ $isAbbonamento ? '1' : '0' }}"
+                                    {{ $hasOld ? 'checked' : '' }}>
+
+                                <label class="form-check-label" for="service_{{ $index }}">
+                                    {{ $service->name }}
                                     ({{ $service->price ? '€' . number_format($service->price, 2, ',', '.') : 'Prezzo da definire' }})
                                 </label>
                             </div>
 
-                            @if ($isExtension || $service->is_variable_price)
-                                <div class="mt-1">
-                                    <input
-                                        type="number"
-                                        class="form-control form-control-sm variable-price"
-                                        data-related-checkbox="service_{{ $service->id }}"
-                                        name="custom_prices[{{ $service->id }}]"
-                                        placeholder="{{ $isExtension ? 'Numero di ciocche' : 'Prezzo del prodotto' }}"
-                                        value="{{ old('custom_prices.' . $service->id, (!$isAdmin && $isAbbonamento) ? 0 : '') }}"
-                                        style="display: none;"
+                            {{-- Input (hidden unless checked) --}}
+                            <div class="mt-2 service-entry-input" id="input_{{ $index }}" style="display: none;">
+                                @if ($service->uses_quantity)
+                                    <input type="number" class="form-control form-control-sm" name="services[{{ $index }}][entry]"
+                                        placeholder="Quantità"
+                                        min="1"
+                                        step="1"
+                                        value="{{ old("services.$index.entry") }}">
+                                @elseif ($service->is_variable_price || $isAbbonamento)
+                                    <input type="number" class="form-control form-control-sm"
+                                        name="services[{{ $index }}][entry]"
+                                        placeholder="Prezzo personalizzato (€)"
                                         min="0"
-                                        step="{{ $isExtension ? '1' : '0.01' }}"
-                                        @if (!$isAdmin && $isAbbonamento) disabled readonly @endif
-                                    >
+                                        step="0.01"
+                                        value="{{ old("services.$index.entry", $isAbbonamento && !$isAdmin ? 0 : '') }}"
+                                        {{ $isAbbonamento && !$isAdmin ? 'readonly disabled' : '' }}>
 
-                                    @if (!$isAdmin && $isAbbonamento)
-                                        <small class="text-muted d-block">
-                                            Il prezzo per questo servizio è fisso e non modificabile.
-                                        </small>
+                                    @if ($isAbbonamento && !$isAdmin)
+                                        <small class="text-muted">Il prezzo per questo servizio è fisso e non modificabile.</small>
                                     @endif
-                                </div>
-                            @endif
+                                @endif
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -105,48 +111,41 @@
     </form>
 </div>
 
-{{-- MODAL CLIENTE --}}
+{{-- MODAL --}}
 @include('admin.service-logs._client-modal')
 @endsection
 
 @push('scripts')
 <script>
-    const IS_ADMIN = @json(auth()->user()->role === 'admin');
-
     document.addEventListener('DOMContentLoaded', function () {
-        $('#client_id').select2({
-            placeholder: 'Cerca un cliente...',
-            width: '100%',
-            language: 'it'
-        });
+        const checkboxes = document.querySelectorAll('.service-toggle');
 
-        document.querySelectorAll('.service-checkbox').forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const id = this.id;
-                const relatedInputs = document.querySelectorAll(`.variable-price[data-related-checkbox="${id}"]`);
+        checkboxes.forEach(checkbox => {
+            const index = checkbox.dataset.index;
+            const inputContainer = document.getElementById(`input_${index}`);
+            const usesQuantity = checkbox.dataset.usesQuantity === '1';
+            const isVariable = checkbox.dataset.isVariable === '1';
+            const isAbbonamento = checkbox.dataset.isAbbonamento === '1';
 
-                relatedInputs.forEach(input => {
-                    input.style.display = this.checked ? 'block' : 'none';
-                    if (!this.checked) {
-                        input.value = '';
-                    }
-                });
+            // Initial state (preserve old input)
+            if (checkbox.checked) {
+                inputContainer.style.display = 'block';
+            }
+
+            checkbox.addEventListener('change', () => {
+                if (checkbox.checked) {
+                    inputContainer.style.display = 'block';
+                } else {
+                    inputContainer.style.display = 'none';
+                    inputContainer.querySelectorAll('input').forEach(input => input.value = '');
+                }
             });
-
-            checkbox.dispatchEvent(new Event('change'));
         });
 
         @if ($errors->any() && old('_from_modal'))
             const modal = new bootstrap.Modal(document.getElementById('createClientModal'));
             modal.show();
         @endif
-
-        const newClientId = @json(session('new_client_id'));
-        if (newClientId) {
-            $('#client_id').val(newClientId).trigger('change');
-            document.getElementById('client_id').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
     });
 </script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/i18n/it.js"></script>
 @endpush

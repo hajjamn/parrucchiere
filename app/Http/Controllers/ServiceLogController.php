@@ -106,6 +106,7 @@ class ServiceLogController extends Controller
      */
     public function store(ServiceLogStoreRequest $request)
     {
+        dd($request->all());
         $customPrices = $request->input('custom_prices', []);
         $isAdmin = auth()->user()->role === 'admin';
 
