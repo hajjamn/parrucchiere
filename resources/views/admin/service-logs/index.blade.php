@@ -161,8 +161,8 @@
                                         <td class="align-middle">{{ $log->service->name }}</td>
                                         <td class="align-middle">{{ \Carbon\Carbon::parse($log->performed_at)->format('H:i') }}</td>
                                         <td class="align-middle">
-                                            €{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }}</td>
-                                        <td class="align-middle">{{ $log->service->percentage }}%</td>
+                                            €{{ number_format($log->custom_price ?? 0, 2, ',', '.') }}</td>
+                                        <td class="align-middle">{{ $log->commission_percentage }}%</td>
                                         <td class="align-middle">
                                             €{{ number_format(($log->custom_price ?? $log->service->price ?? 0) * $log->service->percentage / 100, 2, ',', '.') }}
                                         </td>
@@ -188,14 +188,9 @@
                         {{-- TOTALI --}}
                         <div class="card-footer bg-dark text-white">
                             @php
-                                $totalPrice = $serviceLogs->sum(function ($log) {
-                                    return $log->custom_price ?? $log->service->price ?? 0;
-                                });
+                                $totalPrice = $serviceLogs->sum(fn($log) => $log->custom_price);
+$totalPercentageValue = $serviceLogs->sum(fn($log) => $log->custom_price * $log->commission_percentage / 100);
 
-                                $totalPercentageValue = $serviceLogs->sum(function ($log) {
-                                    $price = $log->custom_price ?? $log->service->price ?? 0;
-                                    return $price * ($log->service->percentage ?? 0) / 100;
-                                });
                             @endphp
 
                             <div class="d-flex justify-content-between">

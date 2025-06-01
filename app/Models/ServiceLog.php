@@ -16,7 +16,8 @@ class ServiceLog extends Model
         'custom_price',
         'performed_at',
         'notes',
-        'quantity'
+        'quantity',
+        'commission_percentage'
     ];
 
     protected $casts = [

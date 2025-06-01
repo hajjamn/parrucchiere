@@ -18,42 +18,38 @@ class SummaryController extends Controller
         $start = $request->input('start_date') ? Carbon::parse($request->start_date) : now()->startOfDay();
         $end = $request->input('end_date') ? Carbon::parse($request->end_date)->endOfDay() : now()->endOfDay();
 
-        $logs = ServiceLog::with(['user', 'service'])
+        $logs = ServiceLog::with('user')
             ->whereBetween('performed_at', [$start, $end])
             ->get();
 
-        $totalPrice = $logs->sum(fn($log) => $log->custom_price ?? $log->service->price);
-        $totalCommission = $logs->sum(fn($log) => ($log->custom_price ?? $log->service->price) * ($log->service->percentage / 100));
+        // Total revenue
+        $totalPrice = $logs->sum('custom_price');
+
+        // Total commission
+        $totalCommission = $logs->sum(fn($log) => $log->custom_price * ($log->commission_percentage / 100));
+
+        // Net profit
         $netProfit = $totalPrice - $totalCommission;
 
-        $commissionsByUser = $logs->groupBy('user_id')->map(function ($logs, $userId) {
-            return $logs->sum(function ($log) {
-                return ($log->custom_price ?? $log->service->price) * ($log->service->percentage / 100);
-            });
-        });
-
-        $commissionsByUser = $commissionsByUser->mapWithKeys(function ($value, $userId) {
+        // Commission per user
+        $commissionsByUser = $logs->groupBy('user_id')->mapWithKeys(function ($logs, $userId) {
             $user = User::find($userId);
-            return [$user->first_name . ' ' . $user->last_name => $value];
+            $commission = $logs->sum(fn($log) => $log->custom_price * ($log->commission_percentage / 100));
+            return [$user->first_name . ' ' . $user->last_name => $commission];
         });
 
+        // Count of services provided (grouped by service name)
         $servicesCount = $logs->groupBy('service.name')->map->count();
 
-        $serviceRevenue = $logs->groupBy('service.name')->map(function ($logs) {
-            return $logs->sum(function ($log) {
-                return $log->custom_price ?? $log->service->price;
-            });
-        });
+        // Revenue per service
+        $serviceRevenue = $logs->groupBy('service.name')->map(fn($logs) => $logs->sum('custom_price'));
 
-
+        // Revenue per user
         $userRevenue = $logs->groupBy('user_id')->mapWithKeys(function ($logs, $userId) {
-            $user = \App\Models\User::find($userId);
-            $total = $logs->sum(function ($log) {
-                return $log->custom_price ?? $log->service->price ?? 0;
-            });
+            $user = User::find($userId);
+            $total = $logs->sum('custom_price');
             return [$user->first_name . ' ' . $user->last_name => $total];
         });
-
 
         return view('admin.summary.index', compact(
             'totalPrice',
@@ -68,4 +64,3 @@ class SummaryController extends Controller
         ));
     }
 }
-
