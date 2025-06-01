@@ -36,10 +36,22 @@
                        value="{{ old('percentage', 0) }}">
             </div>
 
-            <div class="form-check form-switch mb-4">
+            <div class="form-check form-switch mb-3">
                 <input class="form-check-input" type="checkbox" id="is_variable_price" name="is_variable_price"
                     {{ old('is_variable_price') ? 'checked' : '' }}>
                 <label class="form-check-label" for="is_variable_price">Prezzo Variabile</label>
+                <div id="var_price_conflict" class="text-warning small d-none">
+                    Non compatibile con "Usa Quantità".
+                </div>
+            </div>
+
+            <div class="form-check form-switch mb-4">
+                <input class="form-check-input" type="checkbox" id="uses_quantity" name="uses_quantity"
+                    {{ old('uses_quantity') ? 'checked' : '' }}>
+                <label class="form-check-label" for="uses_quantity">Usa Quantità</label>
+                <div id="qty_conflict" class="text-warning small d-none">
+                    Non compatibile con "Prezzo Variabile".
+                </div>
             </div>
 
             <div class="d-flex justify-content-between">
@@ -49,3 +61,30 @@
         </form>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const varPrice = document.getElementById('is_variable_price');
+        const usesQty = document.getElementById('uses_quantity');
+        const varConflict = document.getElementById('var_price_conflict');
+        const qtyConflict = document.getElementById('qty_conflict');
+
+        function toggleConflicts() {
+            const conflict = varPrice.checked && usesQty.checked;
+
+            if (conflict) {
+                varConflict.classList.remove('d-none');
+                qtyConflict.classList.remove('d-none');
+            } else {
+                varConflict.classList.add('d-none');
+                qtyConflict.classList.add('d-none');
+            }
+        }
+
+        varPrice.addEventListener('change', toggleConflicts);
+        usesQty.addEventListener('change', toggleConflicts);
+        toggleConflicts(); // initial check
+    });
+</script>
+@endpush

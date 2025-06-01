@@ -21,15 +21,14 @@ class ServiceLogStoreRequest extends FormRequest
      */
     public function rules()
     {
+
         return [
             'client_id' => 'required|exists:clients,id',
-            'service_ids' => 'required|array|min:1',
-            'service_ids.*' => 'exists:services,id',
             'performed_at' => 'required|date',
-            'custom_prices' => 'nullable|array',
-            'custom_prices.*' => 'nullable|numeric|min:0',
-            'quantities' => 'nullable|array',
-            'quantities.*' => 'nullable|integer|min:0',
+            'services' => 'required|array|min:1',
+            'services.*.id' => 'required|exists:services,id',
+            'services.*.entry' => 'nullable|numeric|min:0',
         ];
     }
+
 }

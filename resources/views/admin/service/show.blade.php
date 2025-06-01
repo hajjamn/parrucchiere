@@ -12,6 +12,7 @@
                 </p>
                 <p class="mb-1"><strong>Percentuale Operatore:</strong> {{ $service->percentage }}%</p>
                 <p class="mb-0"><strong>Prezzo Variabile:</strong> {{ $service->is_variable_price ? 'Sì' : 'No' }}</p>
+                <p class="mb-0"><strong>Usa Quantità:</strong> {{ $service->uses_quantity ? 'Sì' : 'No' }}</p>
             </div>
         </div>
 
