@@ -14,7 +14,8 @@ class Service extends Model
         'name',
         'price',
         'percentage',
-        'is_variable_price'
+        'is_variable_price',
+        'uses_quantity'
     ];
 
     public function serviceLogs()

@@ -59,6 +59,23 @@ class ServiceController extends Controller
             'percentage' => 'required|numeric|min:0|max:100'
         ]);
 
+        $isVariablePrice = $request->boolean('is_variable_price');
+        $usesQuantity = $request->boolean('uses_quantity');
+
+        if ($isVariablePrice && $usesQuantity) {
+            return redirect()->back()
+                ->withErrors(['is_variable_price' => 'Un servizio non può avere sia prezzo variabile che quantità.'])
+                ->withInput();
+        }
+
+        $validated['is_variable_price'] = $isVariablePrice;
+        $validated['uses_quantity'] = $usesQuantity;
+
+        // Force null price if variable
+        if ($isVariablePrice) {
+            $validated['price'] = null;
+        }
+
         Service::create($validated);
 
         return redirect()->route('admin.services.index')->with('success', 'Servizio creato con successo.');
@@ -79,6 +96,23 @@ class ServiceController extends Controller
             'price' => 'required|numeric|min:0',
             'percentage' => 'required|numeric|min:0|max:100',
         ]);
+
+        $isVariablePrice = $request->boolean('is_variable_price');
+        $usesQuantity = $request->boolean('uses_quantity');
+
+        if ($isVariablePrice && $usesQuantity) {
+            return redirect()->back()
+                ->withErrors(['is_variable_price' => 'Un servizio non può avere sia prezzo variabile che quantità.'])
+                ->withInput();
+        }
+
+        $validated['is_variable_price'] = $isVariablePrice;
+        $validated['uses_quantity'] = $usesQuantity;
+
+        // Force null price if variable
+        if ($isVariablePrice) {
+            $validated['price'] = null;
+        }
 
         // Prevent updating price if the service is "Abbonamento"
         if (strtolower($service->name) === 'abbonamento') {

@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
     <div class="container py-4">
         <h1 class="mb-4 d-flex justify-content-between align-items-center">
             <span class="text-white">Servizi</span>
@@ -21,6 +22,7 @@
                         <th>Prezzo</th>
                         <th>Percentuale</th>
                         <th>Prezzo Variabile</th>
+                        <th>Usa Quantità</th>
                         <th class="text-center">Azioni</th>
                     </tr>
                 </thead>
@@ -37,6 +39,7 @@
                             </td>
                             <td>{{ $service->percentage }}%</td>
                             <td>{{ $service->is_variable_price ? 'Sì' : 'No' }}</td>
+                            <td>{{ $service->uses_quantity ? 'Sì' : 'No' }}</td>
                             <td class="text-center">
                                 <a href="{{ route('admin.services.edit', $service) }}"
                                     class="btn btn-sm btn-outline-primary me-1">Modifica</a>
