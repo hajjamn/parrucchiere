@@ -74,31 +74,27 @@
                         placeholder="Numero di ciocche"
                     >
                 </div>
-
-            {{-- Abbonamento readonly for non-admin --}}
-            @elseif ($isAbbonamento && !$isAdmin)
-                <div class="mb-3">
-                    <label class="form-label">Prezzo abbonamento</label>
-                    <input type="text" class="form-control"
-                        value="€{{ number_format($serviceLog->custom_price, 2, ',', '.') }}" readonly>
-                </div>
-
-            {{-- Custom price input for other variable-price services --}}
-            @elseif ($selectedService?->is_variable_price)
-                <div class="mb-3">
-                    <label for="custom_price" class="form-label">Prezzo personalizzato</label>
-                    <input
-                        type="number"
-                        name="custom_price"
-                        id="custom_price"
-                        class="form-control"
-                        step="0.01"
-                        min="0"
-                        value="{{ old('custom_price', $serviceLog->custom_price) }}"
-                        placeholder="Prezzo personalizzato"
-                    >
-                </div>
             @endif
+
+            {{-- Custom Price (Always shown) --}}
+<div class="mb-3">
+    <label for="custom_price" class="form-label">Prezzo personalizzato</label>
+    <input
+        type="number"
+        name="custom_price"
+        id="custom_price"
+        class="form-control"
+        step="0.01"
+        min="0"
+        value="{{ old('custom_price', $serviceLog->custom_price) }}"
+        placeholder="Prezzo personalizzato"
+        {{ (!$isAdmin && $isAbbonamento) ? 'readonly disabled' : '' }}
+    >
+    @if (!$isAdmin && $isAbbonamento)
+        <small class="text-white">Il prezzo per questo servizio è fisso e non modificabile.</small>
+    @endif
+</div>
+
 
             {{-- Note --}}
             <div class="mb-3">

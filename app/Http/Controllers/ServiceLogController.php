@@ -106,41 +106,52 @@ class ServiceLogController extends Controller
      */
     public function store(ServiceLogStoreRequest $request)
     {
-        dd($request->all());
-        $customPrices = $request->input('custom_prices', []);
+        $services = $request->input('services', []);
         $isAdmin = auth()->user()->role === 'admin';
 
-        foreach ($request->service_ids as $serviceId) {
-            $service = Service::find($serviceId);
+        foreach ($services as $item) {
+            if (empty($item['id']))
+                continue;
+
+            $service = Service::find($item['id']);
             if (!$service)
                 continue;
 
-            $customInput = $customPrices[$serviceId] ?? null;
+            // Initialize
             $customPrice = null;
             $quantity = null;
 
-            // Handle Abbonamento: non-admins get fixed price 0
-            if (strtolower($service->name) === 'abbonamento' && !$isAdmin) {
-                $customPrice = 0;
+            // Abbonamento logic
+            if (strtolower($service->name) === 'abbonamento') {
+                $customPrice = $isAdmin ? ($item['entry'] ?? 0) : 0;
             }
 
-            // Handle Extensions via quantity
-            elseif (strtolower($service->name) === 'extensions' && is_numeric($customInput)) {
-                $quantity = (int) $customInput;
+            // Quantity logic (e.g., Extensions)
+            elseif ($service->uses_quantity && isset($item['entry'])) {
+                $quantity = (int) $item['entry'];
                 $customPrice = $quantity * $service->price;
             }
 
-            // Handle all other custom prices
-            elseif ($service->is_variable_price && is_numeric($customInput)) {
-                $customPrice = $customInput;
+            // Variable price logic
+            elseif ($service->is_variable_price && isset($item['entry'])) {
+                $customPrice = $item['entry'];
             }
 
+            // Fixed price fallback (no entry expected)
+            elseif (!$service->is_variable_price && !$service->uses_quantity) {
+                $customPrice = $service->price;
+            }
+
+            $commissionPercentage = $service->percentage;
+
+            // Save to DB
             ServiceLog::create([
-                'user_id' => Auth::id(),
+                'user_id' => auth()->id(),
                 'client_id' => $request->client_id,
-                'service_id' => $serviceId,
+                'service_id' => $service->id,
                 'performed_at' => $request->performed_at,
                 'custom_price' => $customPrice,
+                'commission_percentage' => $commissionPercentage,
                 'quantity' => $quantity,
             ]);
         }
