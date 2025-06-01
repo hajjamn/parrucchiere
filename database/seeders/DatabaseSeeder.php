@@ -16,7 +16,9 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
                 /* ClientSeeder::class, */
             ServiceSeeder::class,
-            /* ServiceLogSeeder::class, */
+                /* ServiceLogSeeder::class, */
+            ClientSeeder::class,
+            ServiceLogSeeder::class,
         ]);
     }
 }
