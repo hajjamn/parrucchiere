@@ -31,7 +31,8 @@
                     <select name="client_id" id="client_id" class="form-select" required>
                         <option value="">-- Seleziona un cliente --</option>
                         @foreach ($clients as $client)
-                            <option value="{{ $client->id }}" {{ old('client_id') == $client->id ? 'selected' : '' }}>
+                            <option value="{{ $client->id }}" {{ (old('client_id', session('new_client_id')) == $client->id) ? 'selected' : '' }}>
+
                                 {{ $client->last_name }} {{ $client->first_name }}
                             </option>
                         @endforeach
