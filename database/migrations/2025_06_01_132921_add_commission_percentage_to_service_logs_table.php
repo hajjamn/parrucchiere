@@ -3,23 +3,13 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
-use App\Models\ServiceLog;
 
 return new class extends Migration {
     public function up(): void
     {
+        // Step 1: Add the new column
         Schema::table('service_logs', function (Blueprint $table) {
             $table->unsignedInteger('commission_percentage')->nullable()->after('custom_price');
-        });
-
-        // Backfill: copy service.percentage into service_log.commission_percentage
-        ServiceLog::with('service')->chunk(100, function ($logs) {
-            foreach ($logs as $log) {
-                if ($log->service) {
-                    $log->commission_percentage = $log->service->percentage;
-                    $log->save();
-                }
-            }
         });
     }
 
@@ -30,4 +20,3 @@ return new class extends Migration {
         });
     }
 };
-

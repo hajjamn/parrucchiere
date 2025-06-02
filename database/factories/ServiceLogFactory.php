@@ -26,15 +26,18 @@ class ServiceLogFactory extends Factory
     {
         $service = Service::inRandomOrder()->first();
         $customPrice = null;
+        $quantity = null;
 
-        if ($service->is_variable_price) {
-            if ($service->price) {
-                $quantity = fake()->numberBetween(1, 10);
-                $customPrice = $quantity * $service->price;
-            } else {
-                $customPrice = fake()->randomFloat(2, 5, 100);
-            }
+        // Use name-based logic like production did
+        $serviceName = strtolower($service->name);
+
+        if ($serviceName === 'extensions') {
+            $quantity = fake()->numberBetween(1, 10);
+            $customPrice = $quantity * $service->price;
+        } elseif ($service->is_variable_price) {
+            $customPrice = fake()->randomFloat(2, 5, 100);
         }
+        ;
 
         return [
             'user_id' => User::inRandomOrder()->first()->id,
@@ -42,6 +45,8 @@ class ServiceLogFactory extends Factory
             'service_id' => $service->id,
             'performed_at' => Carbon::now()->subDays(fake()->numberBetween(0, 30)),
             'custom_price' => $customPrice,
+            'quantity' => $quantity
         ];
     }
+
 }

@@ -9,7 +9,7 @@ class ServiceController extends Controller
 {
     public function index()
     {
-        $services = Service::all();
+        $services = Service::orderBy('name')->get();
         return view('admin.service.index', compact('services'));
     }
 
@@ -29,14 +29,12 @@ class ServiceController extends Controller
         ]);
 
         $totalRevenue = $service->serviceLogs->sum(function ($log) {
-            return $log->custom_price ?? $log->service->price ?? 0;
+            return $log->custom_price ?? 0;
         });
 
         $revenueOverTime = $service->serviceLogs
             ->groupBy(fn($log) => \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d'))
-            ->map(fn($logs) => $logs->sum(function ($log) {
-                return $log->custom_price ?? $log->service->price ?? 0;
-            }));
+            ->map(fn($logs) => $logs->sum(fn($log) => $log->custom_price));
 
         return view('admin.service.show', compact('service', 'startDate', 'endDate', 'totalRevenue', 'revenueOverTime'));
     }
