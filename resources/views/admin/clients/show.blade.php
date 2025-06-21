@@ -9,7 +9,7 @@
 
         <div class="card mb-4">
             <div class="card-body">
-                @if(auth()->user()->role === 'admin')
+                @if (auth()->user()->role === 'admin')
                     <p><strong>Email:</strong> {{ $client->email ?? 'Non disponibile' }}</p>
                     <p><strong>Telefono:</strong> {{ $client->phone ?? 'Non disponibile' }}</p>
                 @endif
@@ -34,6 +34,12 @@
 
         <h3 class="mb-3 text-white">Prestazioni Registrate</h3>
 
+        <p class="text-muted small mb-2">
+            <span class="text-danger fw-bold">*</span> <span class="text-white">I prezzi in rosso con l'asterisco sono
+                relativi a prestazioni
+                parte di un abbonamento.</span>
+        </p>
+
         @if ($client->serviceLogs->isEmpty())
             <div class="alert alert-info">Nessuna prestazione registrata per questo cliente.</div>
         @else
@@ -53,7 +59,15 @@
                             <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
                             <td>{{ $log->service->name }}</td>
                             <td>{{ \Carbon\Carbon::parse($log->performed_at)->format('d/m/Y H:i') }}</td>
-                            <td>€{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }} </td>
+                            <td>
+                                <span class="{{ $log->is_part_of_subscription ? 'text-danger' : '' }}">
+                                    €{{ number_format($log->custom_price ?? ($log->service->price ?? 0), 2, ',', '.') }}
+                                    @if ($log->is_part_of_subscription)
+                                        *
+                                    @endif
+                                </span>
+                            </td>
+
                             <td>
                                 @if (auth()->user()->role === 'admin' || auth()->id() === $log->user_id)
                                     <a href="{{ route('admin.service-logs.edit', $log->id) }}"
@@ -66,7 +80,6 @@
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger">Elimina</button>
                                     </form>
-
                                 @endif
                             </td>
                         </tr>

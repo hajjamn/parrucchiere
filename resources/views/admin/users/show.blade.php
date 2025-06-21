@@ -99,7 +99,7 @@
                         plugins: {
                             tooltip: {
                                 callbacks: {
-                                    label: function (context) {
+                                    label: function(context) {
                                         const label = context.label || '';
                                         const value = context.parsed;
                                         return `${label}: €${value.toFixed(2)}`;
@@ -136,13 +136,15 @@
                         <tr>
                             <td class="align-middle">{{ $log->client->first_name }} {{ $log->client->last_name }}</td>
                             <td class="align-middle">{{ $log->service->name }}</td>
-                            <td class="align-middle">{{ \Carbon\Carbon::parse($log->performed_at)->format('d/m/Y H:i') }}</td>
-                            <td class="align-middle">
-                                €{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }}</td>
-                            <td class="align-middle">{{ $log->service->percentage }}%</td>
-                            <td class="align-middle">
-                                €{{ number_format((($log->custom_price ?? $log->service->price ?? 0) * $log->service->percentage) / 100, 2, ',', '.') }}
+                            <td class="align-middle">{{ \Carbon\Carbon::parse($log->performed_at)->format('d/m/Y H:i') }}
                             </td>
+                            <td class="align-middle">
+                                €{{ number_format($log->custom_price ?? ($log->service->price ?? 0), 2, ',', '.') }}</td>
+                            <td class="align-middle">{{ $log->commission_percentage }}%</td>
+                            <td class="align-middle">
+                                €{{ number_format($log->custom_commission ?? 0, 2, ',', '.') }}
+                            </td>
+
 
                             @if (auth()->user()->role === 'admin' || auth()->id() === $log->user_id)
                                 <td class="text-center align-middle">

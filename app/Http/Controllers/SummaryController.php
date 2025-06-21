@@ -23,10 +23,10 @@ class SummaryController extends Controller
             ->get();
 
         // Total revenue
-        $totalPrice = $logs->sum('custom_price');
+        $totalPrice = $logs->reject(fn($log) => $log->is_part_of_subscription)->sum('custom_price');
 
         // Total commission
-        $totalCommission = $logs->sum(fn($log) => $log->custom_price * ($log->commission_percentage / 100));
+        $totalCommission = $logs->sum(fn($log) => $log->custom_commission);
 
         // Net profit
         $netProfit = $totalPrice - $totalCommission;
@@ -34,7 +34,7 @@ class SummaryController extends Controller
         // Commission per user
         $commissionsByUser = $logs->groupBy('user_id')->mapWithKeys(function ($logs, $userId) {
             $user = User::find($userId);
-            $commission = $logs->sum(fn($log) => $log->custom_price * ($log->commission_percentage / 100));
+            $commission = $logs->sum(fn($log) => $log->custom_commission);
             return [$user->first_name . ' ' . $user->last_name => $commission];
         });
 
@@ -42,14 +42,20 @@ class SummaryController extends Controller
         $servicesCount = $logs->groupBy('service.name')->map->count();
 
         // Revenue per service
-        $serviceRevenue = $logs->groupBy('service.name')->map(fn($logs) => $logs->sum('custom_price'));
+        $serviceRevenue = $logs
+            ->reject(fn($log) => $log->is_part_of_subscription)
+            ->groupBy('service.name')
+            ->map(fn($logs) => $logs->sum('custom_price'));
 
         // Revenue per user
-        $userRevenue = $logs->groupBy('user_id')->mapWithKeys(function ($logs, $userId) {
-            $user = User::find($userId);
-            $total = $logs->sum('custom_price');
-            return [$user->first_name . ' ' . $user->last_name => $total];
-        });
+        $userRevenue = $logs
+            ->reject(fn($log) => $log->is_part_of_subscription)
+            ->groupBy('user_id')
+            ->mapWithKeys(function ($logs, $userId) {
+                $user = User::find($userId);
+                $total = $logs->sum('custom_price');
+                return [$user->first_name . ' ' . $user->last_name => $total];
+            });
 
         return view('admin.summary.index', compact(
             'totalPrice',
