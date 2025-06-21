@@ -77,24 +77,32 @@
             @endif
 
             {{-- Custom Price (Always shown) --}}
-<div class="mb-3">
-    <label for="custom_price" class="form-label">Prezzo personalizzato</label>
-    <input
-        type="number"
-        name="custom_price"
-        id="custom_price"
-        class="form-control"
-        step="0.01"
-        min="0"
-        value="{{ old('custom_price', $serviceLog->custom_price) }}"
-        placeholder="Prezzo personalizzato"
-        {{ (!$isAdmin && $isAbbonamento) ? 'readonly disabled' : '' }}
-    >
-    @if (!$isAdmin && $isAbbonamento)
-        <small class="text-white">Il prezzo per questo servizio è fisso e non modificabile.</small>
-    @endif
-</div>
+            <div class="mb-3">
+                <label for="custom_price" class="form-label">Prezzo personalizzato</label>
+                <input
+                    type="number"
+                    name="custom_price"
+                    id="custom_price"
+                    class="form-control"
+                    step="0.01"
+                    min="0"
+                    value="{{ old('custom_price', $serviceLog->custom_price) }}"
+                    placeholder="Prezzo personalizzato"
+                    {{ (!$isAdmin && $isAbbonamento) ? 'readonly disabled' : '' }}
+                >
+                @if (!$isAdmin && $isAbbonamento)
+                    <small class="text-white">Il prezzo per questo servizio è fisso e non modificabile.</small>
+                @endif
+            </div>
 
+            {{-- Is Part of Abbonamento --}}
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" name="is_part_of_subscription" id="is_part_of_subscription"
+                    value="1" {{ old('is_part_of_subscription', $serviceLog->is_part_of_subscription) ? 'checked' : '' }}>
+                <label class="form-check-label" for="is_part_of_subscription">
+                    Questa prestazione fa parte di un abbonamento
+                </label>
+            </div>
 
             {{-- Note --}}
             <div class="mb-3">

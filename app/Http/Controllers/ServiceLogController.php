@@ -108,6 +108,7 @@ class ServiceLogController extends Controller
     {
         $services = $request->input('services', []);
         $isAdmin = auth()->user()->role === 'admin';
+        $isSubscription = $request->has('is_part_of_subscription');
 
         foreach ($services as $item) {
             if (empty($item['id']))
@@ -142,7 +143,8 @@ class ServiceLogController extends Controller
                 $customPrice = $service->price;
             }
 
-            $commissionPercentage = $service->percentage;
+            $commissionPercentage = $service->percentage ?? 0;
+            $customCommission = ($customPrice * $commissionPercentage) / 100;
 
             // Save to DB
             ServiceLog::create([
@@ -153,6 +155,8 @@ class ServiceLogController extends Controller
                 'custom_price' => $customPrice,
                 'commission_percentage' => $commissionPercentage,
                 'quantity' => $quantity,
+                'custom_commission' => $customCommission,
+                'is_part_of_subscription' => $isSubscription
             ]);
         }
 
@@ -189,6 +193,8 @@ class ServiceLogController extends Controller
     {
         $this->authorizeUserOrAdmin($serviceLog);
         $data = $request->validated();
+        $data['is_part_of_subscription'] = $request->boolean('is_part_of_subscription');
+
 
         $isAdmin = auth()->user()->role === 'admin';
         $service = Service::find($data['service_id']);
@@ -210,6 +216,10 @@ class ServiceLogController extends Controller
             $data['custom_price'] = null;
             $data['quantity'] = null;
         }
+
+        /* QUESTO DA AGGIUNGERE SOLO SE VOGLIONO RICALCOLARE COMMISSIONI DOPO SCONTI */
+        /* $commissionPercentage = $serviceLog->commission_percentage ?? 0;
+        $data['custom_commission'] = ($data['custom_price'] ?? 0) * $commissionPercentage / 100; */
 
         $serviceLog->update($data);
 
