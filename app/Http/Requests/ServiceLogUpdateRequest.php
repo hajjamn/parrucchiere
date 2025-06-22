@@ -28,6 +28,7 @@ class ServiceLogUpdateRequest extends FormRequest
             'custom_price' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string',
             'quantity' => 'nullable|integer|min:0',
+            'is_part_of_subscription' => 'nullable|boolean'
         ];
     }
 }

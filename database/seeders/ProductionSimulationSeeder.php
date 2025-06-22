@@ -40,4 +40,9 @@ php artisan migrate --path=database/migrations/2025_06_01_142915_add_uses_quanti
 
 php artisan migrate --path=database/migrations/2025_06_02_120106_fix_existing_data.php
 
+
+
+php artisan migrate --path=database/migrations/2025_06_21_153249_add_is_part_of_subscription_to_service_logs_table.php
+php artisan migrate --path=database/migrations/2025_06_21_153555_add_custom_commission_to_service_logs.php
+php artisan migrate --path=database/migrations/2025_06_21_154429_fix_existing_data_after_subscription_update.php
  */

@@ -14,10 +14,13 @@ class ServiceLog extends Model
         'client_id',
         'service_id',
         'custom_price',
-        'performed_at',
-        'notes',
+        'commission_percentage',
+        'custom_commission',
         'quantity',
-        'commission_percentage'
+        'is_part_of_subscription',
+        'notes',
+        'performed_at',
+
     ];
 
     protected $casts = [

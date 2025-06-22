@@ -74,6 +74,12 @@
 
         <h5 class="text-white">Prestazioni con questo servizio</h5>
 
+        <p class="text-muted small mb-2">
+            <span class="text-danger fw-bold">*</span> <span class="text-white">I prezzi in rosso con l'asterisco sono
+                relativi a prestazioni
+                parte di un abbonamento e non vengono calcolati nei totali.</span>
+        </p>
+
         @if ($service->serviceLogs->isEmpty())
             <div class="alert alert-info">Nessuna prestazione trovata per questo servizio.</div>
         @else
@@ -90,26 +96,24 @@
                     </thead>
                     <tbody>
                         @foreach ($service->serviceLogs->sortByDesc('performed_at') as $log)
-                                    <tr>
-                                        <td>
-                                            <a href="{{ route('admin.clients.show', $log->client_id) }}">
-                                                {{ $log->client->first_name }} {{ $log->client->last_name }}
-                                            </a>
-                                        </td>
-                                        <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
-                                        <td>{{ \Carbon\Carbon::parse($log->performed_at)->translatedFormat('d/m/Y H:i') }}</td>
-                                        <td>
-                                            €{{ number_format($log->custom_price ?? $log->service->price ?? 0, 2, ',', '.') }}
-                                        </td>
-                                        <td>
-                                            €{{ number_format(
-                                ($log->custom_price ?? $log->service->price ?? 0) * ($log->service->percentage / 100),
-                                2,
-                                ',',
-                                '.'
-                            ) }}
-                                        </td>
-                                    </tr>
+                            <tr>
+                                <td>
+                                    <a href="{{ route('admin.clients.show', $log->client_id) }}">
+                                        {{ $log->client->first_name }} {{ $log->client->last_name }}
+                                    </a>
+                                </td>
+                                <td>{{ $log->user->first_name }} {{ $log->user->last_name }}</td>
+                                <td>{{ \Carbon\Carbon::parse($log->performed_at)->translatedFormat('d/m/Y H:i') }}</td>
+                                <td>
+                                    €{{ number_format($log->custom_price ?? ($log->service->price ?? 0), 2, ',', '.') }}
+                                </td>
+                                <td>
+                                    €{{ number_format($log->custom_price ?? 0, 2, ',', '.') }}
+                                    @if ($log->is_part_of_subscription)
+                                        <span class="text-danger">*</span>
+                                    @endif
+                                </td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>

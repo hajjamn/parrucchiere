@@ -40,6 +40,16 @@
                 </div>
             </div>
 
+            {{-- ABBONAMENTO? --}}
+            <div class="form-check mb-4">
+                <input class="form-check-input" type="checkbox" name="is_part_of_subscription" id="is_part_of_subscription"
+                    value="1" {{ old('is_part_of_subscription') ? 'checked' : '' }}>
+                <label class="form-check-label" for="is_part_of_subscription">
+                    Queste prestazioni sono parte di un abbonamento
+                </label>
+            </div>
+
+
             {{-- SERVIZI --}}
             <div class="card mb-4">
                 <div class="card-header">Servizi Erogati</div>
@@ -136,6 +146,38 @@
                     toggleInputs(checkbox.checked);
                 });
             });
+
+            // Handle disabling Abbonamento if subscription checkbox is checked
+            const subscriptionCheckbox = document.getElementById('is_part_of_subscription');
+
+            if (subscriptionCheckbox) {
+                const abbonamentoCheckbox = Array.from(document.querySelectorAll('.service-toggle'))
+                    .find(cb => cb.dataset.isAbbonamento === '1');
+
+                const toggleAbbonamentoLock = () => {
+                    if (!abbonamentoCheckbox) return;
+
+                    if (subscriptionCheckbox.checked) {
+                        abbonamentoCheckbox.checked = false;
+                        abbonamentoCheckbox.disabled = true;
+
+                        const inputContainer = document.getElementById(`input_${abbonamentoCheckbox.dataset.index}`);
+                        if (inputContainer) {
+                            inputContainer.style.display = 'none';
+                            inputContainer.querySelectorAll('input').forEach(input => {
+                                input.disabled = true;
+                                if (!input.readOnly) input.value = '';
+                            });
+                        }
+                    } else {
+                        abbonamentoCheckbox.disabled = false;
+                    }
+                };
+
+                toggleAbbonamentoLock();
+                subscriptionCheckbox.addEventListener('change', toggleAbbonamentoLock);
+            }
+
         });
     </script>
 @endpush
