@@ -143,6 +143,10 @@ class ServiceLogController extends Controller
                 $customPrice = $service->price;
             }
 
+            if ($isSubscription && $customPrice !== null) {
+                $customPrice = round($customPrice * 0.9, 2); // apply 10% discount
+            }
+
             $commissionPercentage = $service->percentage ?? 0;
             $customCommission = ($customPrice * $commissionPercentage) / 100;
 

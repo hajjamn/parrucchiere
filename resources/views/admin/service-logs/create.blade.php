@@ -31,7 +31,8 @@
                     <select name="client_id" id="client_id" class="form-select" required>
                         <option value="">-- Seleziona un cliente --</option>
                         @foreach ($clients as $client)
-                            <option value="{{ $client->id }}" {{ (old('client_id', session('new_client_id')) == $client->id) ? 'selected' : '' }}>
+                            <option value="{{ $client->id }}"
+                                {{ old('client_id', session('new_client_id')) == $client->id ? 'selected' : '' }}>
 
                                 {{ $client->last_name }} {{ $client->first_name }}
                             </option>
@@ -45,7 +46,9 @@
                 <input class="form-check-input" type="checkbox" name="is_part_of_subscription" id="is_part_of_subscription"
                     value="1" {{ old('is_part_of_subscription') ? 'checked' : '' }}>
                 <label class="form-check-label" for="is_part_of_subscription">
-                    Queste prestazioni sono parte di un abbonamento
+                    Queste prestazioni sono parte di un abbonamento <i>(NB: Le prestazioni selezionate avranno uno sconto
+                        del
+                        10%)</i>
                 </label>
             </div>
 
@@ -69,7 +72,8 @@
                                         value="{{ $service->id }}" data-index="{{ $service->id }}"
                                         data-uses-quantity="{{ $service->uses_quantity }}"
                                         data-is-variable="{{ $service->is_variable_price }}"
-                                        data-is-abbonamento="{{ $isAbbonamento ? '1' : '0' }}" {{ $hasOld ? 'checked' : '' }}>
+                                        data-is-abbonamento="{{ $isAbbonamento ? '1' : '0' }}"
+                                        {{ $hasOld ? 'checked' : '' }}>
 
                                     <label class="form-check-label" for="service_{{ $service->id }}">
                                         {{ $service->name }}
@@ -79,20 +83,23 @@
 
                                 {{-- Optional Input --}}
                                 @if ($service->uses_quantity || $service->is_variable_price || $isAbbonamento)
-                                    <div class="mt-2 service-entry-input" id="input_{{ $service->id }}" style="display: none;">
+                                    <div class="mt-2 service-entry-input" id="input_{{ $service->id }}"
+                                        style="display: none;">
                                         @if ($service->uses_quantity)
                                             <input type="number" class="form-control form-control-sm"
-                                                name="services[{{ $service->id }}][entry]" placeholder="Quantità" min="1" step="1"
+                                                name="services[{{ $service->id }}][entry]" placeholder="Quantità"
+                                                min="1" step="1"
                                                 value="{{ old("services.$service->id.entry") }}" disabled>
                                         @elseif ($service->is_variable_price || $isAbbonamento)
                                             <input type="number" class="form-control form-control-sm"
-                                                name="services[{{ $service->id }}][entry]" placeholder="Prezzo personalizzato (€)"
-                                                min="0" step="0.01"
+                                                name="services[{{ $service->id }}][entry]"
+                                                placeholder="Prezzo personalizzato (€)" min="0" step="0.01"
                                                 value="{{ old("services.$service->id.entry", $isAbbonamento && !$isAdmin ? 0 : '') }}"
                                                 {{ $isAbbonamento && !$isAdmin ? 'readonly' : '' }} disabled>
 
                                             @if ($isAbbonamento && !$isAdmin)
-                                                <small class="text-muted">Il prezzo per questo servizio è fisso e non modificabile.</small>
+                                                <small class="text-muted">Il prezzo per questo servizio è fisso e non
+                                                    modificabile.</small>
                                             @endif
                                         @endif
                                     </div>
@@ -124,7 +131,7 @@
 
 @push('scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.service-toggle').forEach(checkbox => {
                 const serviceId = checkbox.dataset.index;
                 const inputContainer = document.getElementById(`input_${serviceId}`);
@@ -161,7 +168,8 @@
                         abbonamentoCheckbox.checked = false;
                         abbonamentoCheckbox.disabled = true;
 
-                        const inputContainer = document.getElementById(`input_${abbonamentoCheckbox.dataset.index}`);
+                        const inputContainer = document.getElementById(
+                            `input_${abbonamentoCheckbox.dataset.index}`);
                         if (inputContainer) {
                             inputContainer.style.display = 'none';
                             inputContainer.querySelectorAll('input').forEach(input => {
