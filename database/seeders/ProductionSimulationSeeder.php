@@ -46,3 +46,16 @@ php artisan migrate --path=database/migrations/2025_06_21_153249_add_is_part_of_
 php artisan migrate --path=database/migrations/2025_06_21_153555_add_custom_commission_to_service_logs.php
 php artisan migrate --path=database/migrations/2025_06_21_154429_fix_existing_data_after_subscription_update.php
  */
+
+/* 
+
+cd /var/www/generazionedigitaleprogrammi/dreamscenter
+git stash
+git pull origin main
+git stash pop
+php artisan config:clear
+php artisan cache:clear
+php artisan view:clear
+php artisan config:cache
+
+*/
