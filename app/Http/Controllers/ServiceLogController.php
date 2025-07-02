@@ -222,8 +222,8 @@ class ServiceLogController extends Controller
         }
 
         /* QUESTO DA AGGIUNGERE SOLO SE VOGLIONO RICALCOLARE COMMISSIONI DOPO SCONTI */
-        /* $commissionPercentage = $serviceLog->commission_percentage ?? 0;
-        $data['custom_commission'] = ($data['custom_price'] ?? 0) * $commissionPercentage / 100; */
+        $commissionPercentage = $serviceLog->commission_percentage ?? 0;
+        $data['custom_commission'] = ($data['custom_price'] ?? 0) * $commissionPercentage / 100;
 
         $serviceLog->update($data);
 
