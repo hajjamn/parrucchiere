@@ -35,10 +35,11 @@
 
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
-                <div class="">
+                <div class="d-flex align-items-center gap-2">
                     {{-- <a class="nav-link" href="{{ route('admin.service-logs.index') }}"> --}}
 
                         <img src="{{ asset('images/favicon.png') }}" alt="Logo" style="height: 40px;">
+                        <span class="fs-5 fw-semibold text-secondary">Acerra</span>
                         {{-- </a> --}}
 
                 </div>
