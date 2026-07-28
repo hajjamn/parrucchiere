@@ -43,18 +43,12 @@ class UserController extends Controller
             }
         ]);
 
-        $totalCommission = $user->serviceLogs->sum(function ($log) {
-            $price = $log->custom_price ?? $log->service->price ?? 0;
-            return ($price * $log->service->percentage) / 100;
-        });
+        $totalCommission = $user->serviceLogs->sum('custom_commission');
 
         // Group commission by day
         $commissionOverTime = $user->serviceLogs
             ->groupBy(fn($log) => \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d'))
-            ->map(fn($logs) => $logs->sum(function ($log) {
-                $price = $log->custom_price ?? $log->service->price ?? 0;
-                return ($price * $log->service->percentage) / 100;
-            }));
+            ->map(fn($logs) => $logs->sum('custom_commission'));
 
         // Count of services by service name
         $servicesCount = $user->serviceLogs
@@ -63,12 +57,7 @@ class UserController extends Controller
 
         $commissionByService = $user->serviceLogs
             ->groupBy('service.name')
-            ->map(function ($logs) {
-                return $logs->sum(function ($log) {
-                    $price = $log->custom_price ?? $log->service->price ?? 0;
-                    return ($price * $log->service->percentage) / 100;
-                });
-            });
+            ->map(fn($logs) => $logs->sum('custom_commission'));
 
 
 

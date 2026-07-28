@@ -28,6 +28,7 @@ class ServiceLogStoreRequest extends FormRequest
             'services' => 'required|array|min:1',
             'services.*.id' => 'required|exists:services,id',
             'services.*.entry' => 'nullable|numeric|min:0',
+            'is_part_of_subscription' => 'nullable|boolean'
         ];
     }
 

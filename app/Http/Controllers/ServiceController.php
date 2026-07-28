@@ -28,13 +28,15 @@ class ServiceController extends Controller
             }
         ]);
 
-        $totalRevenue = $service->serviceLogs->sum(function ($log) {
-            return $log->custom_price ?? 0;
-        });
+        $totalRevenue = $service->serviceLogs
+            ->reject(fn($log) => $log->is_part_of_subscription)
+            ->sum('custom_price');
 
         $revenueOverTime = $service->serviceLogs
+            ->reject(fn($log) => $log->is_part_of_subscription)
             ->groupBy(fn($log) => \Carbon\Carbon::parse($log->performed_at)->format('Y-m-d'))
-            ->map(fn($logs) => $logs->sum(fn($log) => $log->custom_price));
+            ->map(fn($logs) => $logs->sum('custom_price'));
+
 
         return view('admin.service.show', compact('service', 'startDate', 'endDate', 'totalRevenue', 'revenueOverTime'));
     }
